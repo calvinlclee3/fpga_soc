@@ -1,0 +1,35 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/calvi/Downloads/ECE 385/Lab 6/wk1/simulation/modelsim
+vlab61
+DXx6 sv_std 3 std 0 22 AD7iAPLo6nTIKk<N0eo=D3
+!s110 1634100152
+!i10b 1
+!s100 gKPTjoMTJcl]T6XgHz9410
+IZO8?VTbVfc_jQC`Cf=<Tf0
+VDg1SIo80bB@j0V0VzS_@n1
+!s105 lab61_sv_unit
+S1
+R0
+w1634098174
+8C:/Users/calvi/Downloads/ECE 385/Lab 6/wk1/lab61.sv
+FC:/Users/calvi/Downloads/ECE 385/Lab 6/wk1/lab61.sv
+L0 11
+OV;L;10.5b;63
+r1
+!s85 0
+31
+!s108 1634100152.000000
+!s107 C:/Users/calvi/Downloads/ECE 385/Lab 6/wk1/lab61.sv|
+!s90 -reportprogress|300|-sv|-work|work|+incdir+C:/Users/calvi/Downloads/ECE 385/Lab 6/wk1|C:/Users/calvi/Downloads/ECE 385/Lab 6/wk1/lab61.sv|
+!i113 1
+o-sv -work work
+!s92 -sv -work work {+incdir+C:/Users/calvi/Downloads/ECE 385/Lab 6/wk1}
+tCvgOpt 0

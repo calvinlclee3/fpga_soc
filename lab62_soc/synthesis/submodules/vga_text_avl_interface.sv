@@ -67,16 +67,46 @@ logic [3:0] pre_red, pre_green, pre_blue;
 logic pixel_clk;
 
 
-logic [31:0] PALETTE_REG [8]; // Wk2
+logic [11:0] PALETTE_REG [8] = '{ 12'h000, 12'h333, 12'h666, 12'h999, 12'hccc, 12'hfff , 12'h742 , 12'hfa9 }; // Wk2
 logic [3:0] FGD_IDX, BKG_IDX; // Wk2
 
+logic [11:0] pixel_address;
+logic [2:0] palette_index;
+
+
+always_comb begin  
+	if(DrawX > 60 || DrawY > 60) begin
+		pre_red = 4'h0;
+		pre_green = 4'h0;
+		pre_blue = 4'h0;
+		pixel_address = 12'h0;
+	end
+	else 
+	begin
+		pixel_address = DrawY * 60 + DrawX;
+		pre_red = PALETTE_REG[palette_index][11:8];
+		pre_green = PALETTE_REG[palette_index][7:4];
+		pre_blue = PALETTE_REG[palette_index][3:0];
+	end
+end
+
+sprite_ram ram (.Clk(CLK), .pixel_address(pixel_address), .data_Out(palette_index));
+
+		// module  sprite_rom
+		// (
+		// 	input logic [11:0] pixel_address,
+		// 	input logic [4:0] sprite_address,
+		// 	input logic Clk,
+
+		// 	output logic [2:0] data_Out
+		// );
 
 // On-Chip Memory
 // Port A for Avalon
 // Port B for VGA  
-ram ram_0 (.address_a(AVL_ADDR[10:0]), .data_a(AVL_WRITEDATA), .byteena_a(AVL_BYTE_EN), .wren_a(AVL_WRITE & AVL_CS & (~AVL_ADDR[11])), .q_a(AVL_READDATA),
-			  .address_b(VRAM_reg_index), .data_b(), .byteena_b(), .wren_b(), .q_b(VGA_DATA), // Wk2
-			  .clock(CLK)); 
+// ram ram_0 (.address_a(AVL_ADDR[10:0]), .data_a(AVL_WRITEDATA), .byteena_a(AVL_BYTE_EN), .wren_a(AVL_WRITE & AVL_CS & (~AVL_ADDR[11])), .q_a(AVL_READDATA),
+// 			  .address_b(VRAM_reg_index), .data_b(), .byteena_b(), .wren_b(), .q_b(VGA_DATA), // Wk2
+// 			  .clock(CLK)); 
 			  
 			  
 //		module ram (
@@ -98,7 +128,7 @@ ram ram_0 (.address_a(AVL_ADDR[10:0]), .data_a(AVL_WRITEDATA), .byteena_a(AVL_BY
 vga_controller vga_controller0 (.Clk(CLK), .Reset(RESET), .hs(hs), .vs(vs), .pixel_clk(pixel_clk), 
                                 .blank(blank), .DrawX(DrawX), .DrawY(DrawY));
 
-font_rom font_rom0 (.addr(sprite_addr), .data(sprite_data));
+// font_rom font_rom0 (.addr(sprite_addr), .data(sprite_data));
 //		module  vga_controller ( input        Clk,       // 50 MHz clock
 //														  Reset,     // reset signal
 //										 output logic hs,        // Horizontal sync pulse.  Active low
@@ -117,104 +147,104 @@ font_rom font_rom0 (.addr(sprite_addr), .data(sprite_data));
    
 // Palette Register Write Logic (Wk2)
 
-always_ff @(posedge CLK) begin
+// always_ff @(posedge CLK) begin
 	
 
-	if(AVL_CS == 1'b1 && AVL_WRITE == 1'b1 && AVL_ADDR[11] == 1'b1) begin
+// 	if(AVL_CS == 1'b1 && AVL_WRITE == 1'b1 && AVL_ADDR[11] == 1'b1) begin
 	
-		if(AVL_BYTE_EN[0])
-			PALETTE_REG[AVL_ADDR[2:0]][7:0] <= AVL_WRITEDATA[7:0];
-		if(AVL_BYTE_EN[1])
-			PALETTE_REG[AVL_ADDR[2:0]][15:8] <= AVL_WRITEDATA[15:8];
-		if(AVL_BYTE_EN[2])
-			PALETTE_REG[AVL_ADDR[2:0]][23:16] <= AVL_WRITEDATA[23:16];
-		if(AVL_BYTE_EN[3])
-			PALETTE_REG[AVL_ADDR[2:0]][31:24] <= AVL_WRITEDATA[31:24];
+// 		if(AVL_BYTE_EN[0])
+// 			PALETTE_REG[AVL_ADDR[2:0]][7:0] <= AVL_WRITEDATA[7:0];
+// 		if(AVL_BYTE_EN[1])
+// 			PALETTE_REG[AVL_ADDR[2:0]][15:8] <= AVL_WRITEDATA[15:8];
+// 		if(AVL_BYTE_EN[2])
+// 			PALETTE_REG[AVL_ADDR[2:0]][23:16] <= AVL_WRITEDATA[23:16];
+// 		if(AVL_BYTE_EN[3])
+// 			PALETTE_REG[AVL_ADDR[2:0]][31:24] <= AVL_WRITEDATA[31:24];
 		
-	end
+// 	end
 
-end	
+// end	
 	
 // Text Mode Logic
 
-always_comb begin
+// always_comb begin
 
-	Row = DrawY >> 4;
-	Col = DrawX >> 3;
-	VRAM_reg_index = (Row * 40) + (Col >> 1); // Changed from 20 and 2 (Wk2)
+// 	Row = DrawY >> 4;
+// 	Col = DrawX >> 3;
+// 	VRAM_reg_index = (Row * 40) + (Col >> 1); // Changed from 20 and 2 (Wk2)
 	
-	if((Col & 10'b0000000001) == 10'h000) begin
-		glypth_index = VGA_DATA[14:8];
-		FGD_IDX = VGA_DATA[7:4];
-		BKG_IDX = VGA_DATA[3:0];
-	end
+// 	if((Col & 10'b0000000001) == 10'h000) begin
+// 		glypth_index = VGA_DATA[14:8];
+// 		FGD_IDX = VGA_DATA[7:4];
+// 		BKG_IDX = VGA_DATA[3:0];
+// 	end
 		
-	else begin
-		glypth_index = VGA_DATA[30:24];
-		FGD_IDX = VGA_DATA[23:20];
-		BKG_IDX = VGA_DATA[19:16];		
-	end
+// 	else begin
+// 		glypth_index = VGA_DATA[30:24];
+// 		FGD_IDX = VGA_DATA[23:20];
+// 		BKG_IDX = VGA_DATA[19:16];		
+// 	end
 
 	
-	sprite_addr = (DrawY - (Row << 4)) + (glypth_index << 4);
+// 	sprite_addr = (DrawY - (Row << 4)) + (glypth_index << 4);
 	
-	bit_to_draw = sprite_data[8'h7 - (DrawX - (Col << 3))];
+// 	bit_to_draw = sprite_data[8'h7 - (DrawX - (Col << 3))];
 
 	
-end
+// end
 
-always_comb begin
+// always_comb begin
 
-	if(~blank) begin
+// 	if(~blank) begin
 	
-		pre_red = 4'h0;
-		pre_green = 4'h0;
-		pre_blue = 4'h0;
+// 		pre_red = 4'h0;
+// 		pre_green = 4'h0;
+// 		pre_blue = 4'h0;
 	
-	end
-	else begin
+// 	end
+// 	else begin
 		
-		if(bit_to_draw) begin
+// 		if(bit_to_draw) begin
 		
-			if((FGD_IDX & 4'b0001) == 4'b0000) begin //EVEN
+// 			if((FGD_IDX & 4'b0001) == 4'b0000) begin //EVEN
 			
-				pre_red = PALETTE_REG[FGD_IDX >> 1][12:9];
-				pre_green = PALETTE_REG[FGD_IDX >> 1][8:5];
-				pre_blue = PALETTE_REG[FGD_IDX >> 1][4:1];
+// 				pre_red = PALETTE_REG[FGD_IDX >> 1][12:9];
+// 				pre_green = PALETTE_REG[FGD_IDX >> 1][8:5];
+// 				pre_blue = PALETTE_REG[FGD_IDX >> 1][4:1];
 				
-			end
-			else begin  //ODD
+// 			end
+// 			else begin  //ODD
 			
-				pre_red = PALETTE_REG[FGD_IDX >> 1][24:21];
-				pre_green = PALETTE_REG[FGD_IDX >> 1][20:17];
-				pre_blue = PALETTE_REG[FGD_IDX >> 1][16:13];
+// 				pre_red = PALETTE_REG[FGD_IDX >> 1][24:21];
+// 				pre_green = PALETTE_REG[FGD_IDX >> 1][20:17];
+// 				pre_blue = PALETTE_REG[FGD_IDX >> 1][16:13];
 				
-			end
+// 			end
 
 			
-		end
-		else begin
+// 		end
+// 		else begin
 
-			if((BKG_IDX & 4'b0001) == 4'b0000) begin
+// 			if((BKG_IDX & 4'b0001) == 4'b0000) begin
 			
-				pre_red = PALETTE_REG[BKG_IDX >> 1][12:9];
-				pre_green = PALETTE_REG[BKG_IDX >> 1][8:5];
-				pre_blue = PALETTE_REG[BKG_IDX >> 1][4:1];
+// 				pre_red = PALETTE_REG[BKG_IDX >> 1][12:9];
+// 				pre_green = PALETTE_REG[BKG_IDX >> 1][8:5];
+// 				pre_blue = PALETTE_REG[BKG_IDX >> 1][4:1];
 				
-			end
-			else begin
+// 			end
+// 			else begin
 			
-				pre_red = PALETTE_REG[BKG_IDX >> 1][24:21];
-				pre_green = PALETTE_REG[BKG_IDX >> 1][20:17];
-				pre_blue = PALETTE_REG[BKG_IDX >> 1][16:13];
+// 				pre_red = PALETTE_REG[BKG_IDX >> 1][24:21];
+// 				pre_green = PALETTE_REG[BKG_IDX >> 1][20:17];
+// 				pre_blue = PALETTE_REG[BKG_IDX >> 1][16:13];
 				
-			end
+// 			end
 			
-		end
+// 		end
 		
-	end
+// 	end
 
-end
+// end
 
 // DEBUG ONLY: Actual Palette Write is now done via Software
 

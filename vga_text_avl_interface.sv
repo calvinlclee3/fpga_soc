@@ -89,7 +89,7 @@ always_comb begin
 		end
 		else begin
 		
-			ADDR = DrawY * 60 + DrawX + 17'b00100000000000000;
+			ADDR = DrawY * 60 + DrawX + 17'b10101000000000000;
 			pre_red = PALETTE_REG[palette_index][11:8];
 			pre_green = PALETTE_REG[palette_index][7:4];
 			pre_blue = PALETTE_REG[palette_index][3:0];

@@ -2,7 +2,7 @@ set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_TOOL_NAM
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_TOOL_VERSION "18.1"
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_TOOL_ENV "Qsys"
 set_global_assignment -library "lab62_soc" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../../lab62_soc.sopcinfo"]
-set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name SLD_INFO "QSYS_NAME lab62_soc HAS_SOPCINFO 1 GENERATION_ID 1636774301"
+set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name SLD_INFO "QSYS_NAME lab62_soc HAS_SOPCINFO 1 GENERATION_ID 1637218217"
 set_global_assignment -library "lab62_soc" -name MISC_FILE [file join $::quartus(qip_path) "../lab62_soc.cmp"]
 set_global_assignment -library "lab62_soc" -name SLD_FILE [file join $::quartus(qip_path) "lab62_soc.regmap"]
 set_global_assignment -library "lab62_soc" -name SLD_FILE [file join $::quartus(qip_path) "lab62_soc.debuginfo"]
@@ -16,7 +16,7 @@ set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONEN
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_REPORT_HIERARCHY "On"
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_INTERNAL "Off"
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_VERSION "MS4w"
-set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTYzNjc3NDMwMQ==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTYzNzIxODIxNw==::QXV0byBHRU5FUkFUSU9OX0lE"
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::TUFYIDEw::QXV0byBERVZJQ0VfRkFNSUxZ"
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::MTBNNTBEQUY0ODRDN0c=::QXV0byBERVZJQ0U="
 set_global_assignment -entity "lab62_soc" -library "lab62_soc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::Nw==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
@@ -1542,9 +1542,6 @@ set_global_assignment -library "lab62_soc" -name VERILOG_FILE [file join $::quar
 set_global_assignment -library "lab62_soc" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/lab62_soc_accumulate.v"]
 set_global_assignment -library "lab62_soc" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/vga_text_avl_interface.sv"]
 set_global_assignment -library "lab62_soc" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/VGA_controller.sv"]
-set_global_assignment -library "lab62_soc" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/font_rom.sv"]
-set_global_assignment -library "lab62_soc" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/ram.v"]
-set_global_assignment -library "lab62_soc" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/ISDU.sv"]
 set_global_assignment -library "lab62_soc" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sprite_ram.sv"]
 
 set_global_assignment -entity "altera_reset_controller" -library "lab62_soc" -name IP_TOOL_NAME "altera_reset_controller"

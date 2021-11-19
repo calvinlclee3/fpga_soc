@@ -56,12 +56,11 @@ module lab62_soc (
 	wire         mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write;                // mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_write -> jtag_uart_0:av_write_n
 	wire  [31:0] mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_writedata;            // mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_writedata -> jtag_uart_0:av_writedata
 	wire         mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_chipselect; // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_chipselect -> VGA_text_mode_controller_0:AVL_CS
-	wire  [31:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_readdata;   // VGA_text_mode_controller_0:AVL_READDATA -> mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_readdata
-	wire  [11:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_address;    // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_address -> VGA_text_mode_controller_0:AVL_ADDR
+	wire   [7:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_readdata;   // VGA_text_mode_controller_0:AVL_READDATA -> mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_readdata
+	wire   [5:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_address;    // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_address -> VGA_text_mode_controller_0:AVL_ADDR
 	wire         mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_read;       // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_read -> VGA_text_mode_controller_0:AVL_READ
-	wire   [3:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_byteenable; // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_byteenable -> VGA_text_mode_controller_0:AVL_BYTE_EN
 	wire         mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_write;      // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_write -> VGA_text_mode_controller_0:AVL_WRITE
-	wire  [31:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_writedata;  // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_writedata -> VGA_text_mode_controller_0:AVL_WRITEDATA
+	wire   [7:0] mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_writedata;  // mm_interconnect_0:VGA_text_mode_controller_0_avl_mm_slave_writedata -> VGA_text_mode_controller_0:AVL_WRITEDATA
 	wire  [31:0] mm_interconnect_0_sysid_qsys_0_control_slave_readdata;                // sysid_qsys_0:readdata -> mm_interconnect_0:sysid_qsys_0_control_slave_readdata
 	wire   [0:0] mm_interconnect_0_sysid_qsys_0_control_slave_address;                 // mm_interconnect_0:sysid_qsys_0_control_slave_address -> sysid_qsys_0:address
 	wire  [31:0] mm_interconnect_0_nios2_gen2_0_debug_mem_slave_readdata;              // nios2_gen2_0:debug_mem_slave_readdata -> mm_interconnect_0:nios2_gen2_0_debug_mem_slave_readdata
@@ -146,7 +145,6 @@ module lab62_soc (
 		.CLK           (clk_clk),                                                              //          CLK.clk
 		.RESET         (rst_controller_reset_out_reset),                                       //        RESET.reset
 		.AVL_ADDR      (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_address),    // avl_mm_slave.address
-		.AVL_BYTE_EN   (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_byteenable), //             .byteenable
 		.AVL_CS        (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_chipselect), //             .chipselect
 		.AVL_READ      (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_read),       //             .read
 		.AVL_READDATA  (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_readdata),   //             .readdata
@@ -475,7 +473,6 @@ module lab62_soc (
 		.VGA_text_mode_controller_0_avl_mm_slave_read                 (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_read),       //                                                       .read
 		.VGA_text_mode_controller_0_avl_mm_slave_readdata             (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_readdata),   //                                                       .readdata
 		.VGA_text_mode_controller_0_avl_mm_slave_writedata            (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_writedata),  //                                                       .writedata
-		.VGA_text_mode_controller_0_avl_mm_slave_byteenable           (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_byteenable), //                                                       .byteenable
 		.VGA_text_mode_controller_0_avl_mm_slave_chipselect           (mm_interconnect_0_vga_text_mode_controller_0_avl_mm_slave_chipselect)  //                                                       .chipselect
 	);
 

@@ -35,10 +35,9 @@ module vga_text_avl_interface (
 	input  logic AVL_READ,					// Avalon-MM Read
 	input  logic AVL_WRITE,					// Avalon-MM Write
 	input  logic AVL_CS,					// Avalon-MM Chip Select
-	input  logic [3:0] AVL_BYTE_EN,			// Avalon-MM Byte Enable
-	input  logic [11:0] AVL_ADDR,			// Avalon-MM Address
-	input  logic [31:0] AVL_WRITEDATA,		// Avalon-MM Write Data
-	output logic [31:0] AVL_READDATA,		// Avalon-MM Read Data
+	input  logic [5:0] AVL_ADDR,			// Avalon-MM Address
+	input  logic [7:0] AVL_WRITEDATA,		// Avalon-MM Write Data
+	output logic [7:0] AVL_READDATA,		// Avalon-MM Read Data
 	
 	// Exported Conduit (mapped to VGA port - make sure you export in Platform Designer)
 	output logic [3:0]  red, green, blue,	// VGA color channels (mapped to output pins in top-level)
@@ -50,22 +49,31 @@ module vga_text_avl_interface (
 
 // Local Variables
 logic blank, pixel_clk;
+logic board_on;
 
 logic [9:0] DrawX, DrawY;
 logic [3:0] pre_red, pre_green, pre_blue;
 
 
-logic [11:0] PALETTE_REG [8] = '{ 12'h000, 12'h333, 12'h666, 12'h999, 12'hccc, 12'hfff , 12'h742 , 12'hfa9 };
+logic [11:0] PALETTE_REG [15] = '{ 12'h000, 12'h111, 12'h222, 12'h333, 12'h444, 12'h555, 12'h666, 12'h777, 12'h999, 12'haaa, 12'hbbb, 12'hccc, 12'hddd, 12'heee, 12'hfff};
+logic [11:0] background_colors [2] = '{ 12'h742, 12'hfa9 };
+logic background_index;
 
-logic [16:0] ADDR;
-logic [2:0] palette_index;
+logic [11:0] pixel_addr;
+logic [3:0] img_addr;
+logic [3:0] palette_index;
 
 
 // Submodule Declarations
 vga_controller vga_controller0 (.Clk(CLK), .Reset(RESET), .hs(hs), .vs(vs), .pixel_clk(pixel_clk), 
                                 .blank(blank), .DrawX(DrawX), .DrawY(DrawY));
 
-sprite_ram ram (.CLK(CLK), .ADDR(ADDR), .data_out(palette_index));
+sprite_ram ram (.CLK(CLK), .img_addr(img_addr), .pixel_addr(pixel_addr), .data_out(palette_index));
+
+board b (.CLK(CLK), .DrawX(DrawX), .DrawY(DrawY), .AVL_ADDR(AVL_ADDR),
+		.AVL_READ(AVL_READ), .AVL_WRITE(AVL_WRITE), .AVL_CS(AVL_CS), 
+		.AVL_WRITEDATA(AVL_WRITEDATA[3:0]), .AVL_READDATA(AVL_READDATA[3:0]),
+		.pixel_addr(pixel_addr), .img_addr(img_addr), .board_on(board_on), .background_index(background_index));
 
 always_comb begin
   
@@ -74,26 +82,30 @@ always_comb begin
 		pre_red = 4'h0;
 		pre_green = 4'h0;
 		pre_blue = 4'h0;
-		ADDR = 17'h0;
 	
 	end
 	else begin
 
-		if(DrawX > 60 || DrawY > 60) begin
-		
+		if(board_on)
+		begin
+			if (palette_index == 4'hf)
+			begin
+				pre_red = background_colors[background_index][11:8];
+				pre_green = background_colors[background_index][7:4];
+				pre_blue = background_colors[background_index][3:0];
+			end
+			else
+			begin
+				pre_red = PALETTE_REG[palette_index][11:8];
+				pre_green = PALETTE_REG[palette_index][7:4];
+				pre_blue = PALETTE_REG[palette_index][3:0];
+			end
+		end
+		else
+		begin
 			pre_red = 4'h0;
 			pre_green = 4'h0;
 			pre_blue = 4'h0;
-			ADDR = 17'h0;
-			
-		end
-		else begin
-		
-			ADDR = DrawY * 60 + DrawX + 17'b10101000000000000;
-			pre_red = PALETTE_REG[palette_index][11:8];
-			pre_green = PALETTE_REG[palette_index][7:4];
-			pre_blue = PALETTE_REG[palette_index][3:0];
-			
 		end
 		
 	end
@@ -102,9 +114,9 @@ end
 
 always_ff @ (posedge pixel_clk) begin
 
-	red = pre_red;
-	green = pre_green;
-	blue = pre_blue;
+	red <= pre_red;
+	green <= pre_green;
+	blue <= pre_blue;
 
 end
 

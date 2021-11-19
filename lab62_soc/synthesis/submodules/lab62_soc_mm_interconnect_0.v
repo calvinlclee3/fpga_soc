@@ -101,12 +101,11 @@ module lab62_soc_mm_interconnect_0 (
 		input  wire [31:0] usb_rst_s1_readdata,                                          //                                                       .readdata
 		output wire [31:0] usb_rst_s1_writedata,                                         //                                                       .writedata
 		output wire        usb_rst_s1_chipselect,                                        //                                                       .chipselect
-		output wire [11:0] VGA_text_mode_controller_0_avl_mm_slave_address,              //                VGA_text_mode_controller_0_avl_mm_slave.address
+		output wire [5:0]  VGA_text_mode_controller_0_avl_mm_slave_address,              //                VGA_text_mode_controller_0_avl_mm_slave.address
 		output wire        VGA_text_mode_controller_0_avl_mm_slave_write,                //                                                       .write
 		output wire        VGA_text_mode_controller_0_avl_mm_slave_read,                 //                                                       .read
-		input  wire [31:0] VGA_text_mode_controller_0_avl_mm_slave_readdata,             //                                                       .readdata
-		output wire [31:0] VGA_text_mode_controller_0_avl_mm_slave_writedata,            //                                                       .writedata
-		output wire [3:0]  VGA_text_mode_controller_0_avl_mm_slave_byteenable,           //                                                       .byteenable
+		input  wire [7:0]  VGA_text_mode_controller_0_avl_mm_slave_readdata,             //                                                       .readdata
+		output wire [7:0]  VGA_text_mode_controller_0_avl_mm_slave_writedata,            //                                                       .writedata
 		output wire        VGA_text_mode_controller_0_avl_mm_slave_chipselect            //                                                       .chipselect
 	);
 
@@ -171,33 +170,27 @@ module lab62_soc_mm_interconnect_0 (
 	wire   [16:0] cmd_mux_src_channel;                                                                // cmd_mux:src_channel -> jtag_uart_0_avalon_jtag_slave_agent:cp_channel
 	wire          cmd_mux_src_startofpacket;                                                          // cmd_mux:src_startofpacket -> jtag_uart_0_avalon_jtag_slave_agent:cp_startofpacket
 	wire          cmd_mux_src_endofpacket;                                                            // cmd_mux:src_endofpacket -> jtag_uart_0_avalon_jtag_slave_agent:cp_endofpacket
-	wire   [31:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdata;                          // VGA_text_mode_controller_0_avl_mm_slave_translator:uav_readdata -> VGA_text_mode_controller_0_avl_mm_slave_agent:m0_readdata
+	wire    [7:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdata;                          // VGA_text_mode_controller_0_avl_mm_slave_translator:uav_readdata -> VGA_text_mode_controller_0_avl_mm_slave_agent:m0_readdata
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_waitrequest;                       // VGA_text_mode_controller_0_avl_mm_slave_translator:uav_waitrequest -> VGA_text_mode_controller_0_avl_mm_slave_agent:m0_waitrequest
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_debugaccess;                       // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_debugaccess -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_debugaccess
 	wire   [27:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_address;                           // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_address -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_address
-	wire    [3:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_byteenable;                        // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_byteenable -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_byteenable
+	wire    [0:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_byteenable;                        // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_byteenable -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_byteenable
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_read;                              // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_read -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_read
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdatavalid;                     // VGA_text_mode_controller_0_avl_mm_slave_translator:uav_readdatavalid -> VGA_text_mode_controller_0_avl_mm_slave_agent:m0_readdatavalid
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_lock;                              // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_lock -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_lock
-	wire   [31:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_writedata;                         // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_writedata -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_writedata
+	wire    [7:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_writedata;                         // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_writedata -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_writedata
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_m0_write;                             // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_write -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_write
-	wire    [2:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_burstcount;                        // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_burstcount -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_burstcount
+	wire    [0:0] vga_text_mode_controller_0_avl_mm_slave_agent_m0_burstcount;                        // VGA_text_mode_controller_0_avl_mm_slave_agent:m0_burstcount -> VGA_text_mode_controller_0_avl_mm_slave_translator:uav_burstcount
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_valid;                      // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_valid -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_valid
-	wire  [108:0] vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_data;                       // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_data -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_data
+	wire   [81:0] vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_data;                       // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_data -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_data
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_ready;                      // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_ready -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_ready
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_startofpacket;              // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_startofpacket
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_endofpacket;                // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_source_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:in_endofpacket
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_valid;                   // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_valid -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_valid
-	wire  [108:0] vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_data;                    // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_data
+	wire   [81:0] vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_data;                    // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_data
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_ready;                   // VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_ready -> VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_ready
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_startofpacket;           // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_startofpacket
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_endofpacket;             // VGA_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo:out_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:rf_sink_endofpacket
-	wire          cmd_mux_001_src_valid;                                                              // cmd_mux_001:src_valid -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_valid
-	wire  [107:0] cmd_mux_001_src_data;                                                               // cmd_mux_001:src_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_data
-	wire          cmd_mux_001_src_ready;                                                              // VGA_text_mode_controller_0_avl_mm_slave_agent:cp_ready -> cmd_mux_001:src_ready
-	wire   [16:0] cmd_mux_001_src_channel;                                                            // cmd_mux_001:src_channel -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_channel
-	wire          cmd_mux_001_src_startofpacket;                                                      // cmd_mux_001:src_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_startofpacket
-	wire          cmd_mux_001_src_endofpacket;                                                        // cmd_mux_001:src_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_endofpacket
 	wire   [31:0] sysid_qsys_0_control_slave_agent_m0_readdata;                                       // sysid_qsys_0_control_slave_translator:uav_readdata -> sysid_qsys_0_control_slave_agent:m0_readdata
 	wire          sysid_qsys_0_control_slave_agent_m0_waitrequest;                                    // sysid_qsys_0_control_slave_translator:uav_waitrequest -> sysid_qsys_0_control_slave_agent:m0_waitrequest
 	wire          sysid_qsys_0_control_slave_agent_m0_debugaccess;                                    // sysid_qsys_0_control_slave_agent:m0_debugaccess -> sysid_qsys_0_control_slave_translator:uav_debugaccess
@@ -634,16 +627,10 @@ module lab62_soc_mm_interconnect_0 (
 	wire          router_002_src_startofpacket;                                                       // router_002:src_startofpacket -> rsp_demux:sink_startofpacket
 	wire          router_002_src_endofpacket;                                                         // router_002:src_endofpacket -> rsp_demux:sink_endofpacket
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rp_valid;                             // VGA_text_mode_controller_0_avl_mm_slave_agent:rp_valid -> router_003:sink_valid
-	wire  [107:0] vga_text_mode_controller_0_avl_mm_slave_agent_rp_data;                              // VGA_text_mode_controller_0_avl_mm_slave_agent:rp_data -> router_003:sink_data
+	wire   [80:0] vga_text_mode_controller_0_avl_mm_slave_agent_rp_data;                              // VGA_text_mode_controller_0_avl_mm_slave_agent:rp_data -> router_003:sink_data
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rp_ready;                             // router_003:sink_ready -> VGA_text_mode_controller_0_avl_mm_slave_agent:rp_ready
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rp_startofpacket;                     // VGA_text_mode_controller_0_avl_mm_slave_agent:rp_startofpacket -> router_003:sink_startofpacket
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rp_endofpacket;                       // VGA_text_mode_controller_0_avl_mm_slave_agent:rp_endofpacket -> router_003:sink_endofpacket
-	wire          router_003_src_valid;                                                               // router_003:src_valid -> rsp_demux_001:sink_valid
-	wire  [107:0] router_003_src_data;                                                                // router_003:src_data -> rsp_demux_001:sink_data
-	wire          router_003_src_ready;                                                               // rsp_demux_001:sink_ready -> router_003:src_ready
-	wire   [16:0] router_003_src_channel;                                                             // router_003:src_channel -> rsp_demux_001:sink_channel
-	wire          router_003_src_startofpacket;                                                       // router_003:src_startofpacket -> rsp_demux_001:sink_startofpacket
-	wire          router_003_src_endofpacket;                                                         // router_003:src_endofpacket -> rsp_demux_001:sink_endofpacket
 	wire          sysid_qsys_0_control_slave_agent_rp_valid;                                          // sysid_qsys_0_control_slave_agent:rp_valid -> router_004:sink_valid
 	wire  [107:0] sysid_qsys_0_control_slave_agent_rp_data;                                           // sysid_qsys_0_control_slave_agent:rp_data -> router_004:sink_data
 	wire          sysid_qsys_0_control_slave_agent_rp_ready;                                          // router_004:sink_ready -> sysid_qsys_0_control_slave_agent:rp_ready
@@ -803,6 +790,12 @@ module lab62_soc_mm_interconnect_0 (
 	wire   [16:0] router_018_src_channel;                                                             // router_018:src_channel -> rsp_demux_016:sink_channel
 	wire          router_018_src_startofpacket;                                                       // router_018:src_startofpacket -> rsp_demux_016:sink_startofpacket
 	wire          router_018_src_endofpacket;                                                         // router_018:src_endofpacket -> rsp_demux_016:sink_endofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_valid;                // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_valid -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_valid
+	wire   [80:0] vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_data;                 // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_data
+	wire          vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_ready;                // VGA_text_mode_controller_0_avl_mm_slave_agent:cp_ready -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_ready
+	wire   [16:0] vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_channel;              // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_channel -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_channel
+	wire          vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_startofpacket;        // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_startofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_endofpacket;          // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:source0_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_agent:cp_endofpacket
 	wire          sdram_s1_burst_adapter_source0_valid;                                               // sdram_s1_burst_adapter:source0_valid -> sdram_s1_agent:cp_valid
 	wire   [89:0] sdram_s1_burst_adapter_source0_data;                                                // sdram_s1_burst_adapter:source0_data -> sdram_s1_agent:cp_data
 	wire          sdram_s1_burst_adapter_source0_ready;                                               // sdram_s1_agent:cp_ready -> sdram_s1_burst_adapter:source0_ready
@@ -1181,6 +1174,18 @@ module lab62_soc_mm_interconnect_0 (
 	wire   [16:0] rsp_demux_016_src1_channel;                                                         // rsp_demux_016:src1_channel -> rsp_mux_001:sink15_channel
 	wire          rsp_demux_016_src1_startofpacket;                                                   // rsp_demux_016:src1_startofpacket -> rsp_mux_001:sink15_startofpacket
 	wire          rsp_demux_016_src1_endofpacket;                                                     // rsp_demux_016:src1_endofpacket -> rsp_mux_001:sink15_endofpacket
+	wire          router_003_src_valid;                                                               // router_003:src_valid -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_valid
+	wire   [80:0] router_003_src_data;                                                                // router_003:src_data -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_data
+	wire          router_003_src_ready;                                                               // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_ready -> router_003:src_ready
+	wire   [16:0] router_003_src_channel;                                                             // router_003:src_channel -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_channel
+	wire          router_003_src_startofpacket;                                                       // router_003:src_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_startofpacket
+	wire          router_003_src_endofpacket;                                                         // router_003:src_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:in_endofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_valid;                // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_valid -> rsp_demux_001:sink_valid
+	wire  [107:0] vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_data;                 // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_data -> rsp_demux_001:sink_data
+	wire          vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_ready;                // rsp_demux_001:sink_ready -> VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_ready
+	wire   [16:0] vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_channel;              // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_channel -> rsp_demux_001:sink_channel
+	wire          vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_startofpacket;        // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_startofpacket -> rsp_demux_001:sink_startofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_endofpacket;          // VGA_text_mode_controller_0_avl_mm_slave_rsp_width_adapter:out_endofpacket -> rsp_demux_001:sink_endofpacket
 	wire          router_008_src_valid;                                                               // router_008:src_valid -> sdram_s1_rsp_width_adapter:in_valid
 	wire   [89:0] router_008_src_data;                                                                // router_008:src_data -> sdram_s1_rsp_width_adapter:in_data
 	wire          router_008_src_ready;                                                               // sdram_s1_rsp_width_adapter:in_ready -> router_008:src_ready
@@ -1193,6 +1198,18 @@ module lab62_soc_mm_interconnect_0 (
 	wire   [16:0] sdram_s1_rsp_width_adapter_src_channel;                                             // sdram_s1_rsp_width_adapter:out_channel -> rsp_demux_006:sink_channel
 	wire          sdram_s1_rsp_width_adapter_src_startofpacket;                                       // sdram_s1_rsp_width_adapter:out_startofpacket -> rsp_demux_006:sink_startofpacket
 	wire          sdram_s1_rsp_width_adapter_src_endofpacket;                                         // sdram_s1_rsp_width_adapter:out_endofpacket -> rsp_demux_006:sink_endofpacket
+	wire          cmd_mux_001_src_valid;                                                              // cmd_mux_001:src_valid -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_valid
+	wire  [107:0] cmd_mux_001_src_data;                                                               // cmd_mux_001:src_data -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_data
+	wire          cmd_mux_001_src_ready;                                                              // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_ready -> cmd_mux_001:src_ready
+	wire   [16:0] cmd_mux_001_src_channel;                                                            // cmd_mux_001:src_channel -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_channel
+	wire          cmd_mux_001_src_startofpacket;                                                      // cmd_mux_001:src_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_startofpacket
+	wire          cmd_mux_001_src_endofpacket;                                                        // cmd_mux_001:src_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:in_endofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_valid;                // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_valid -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_valid
+	wire   [80:0] vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_data;                 // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_data -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_data
+	wire          vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_ready;                // VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_ready -> VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_ready
+	wire   [16:0] vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_channel;              // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_channel -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_channel
+	wire          vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_startofpacket;        // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_startofpacket -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_startofpacket
+	wire          vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_endofpacket;          // VGA_text_mode_controller_0_avl_mm_slave_cmd_width_adapter:out_endofpacket -> VGA_text_mode_controller_0_avl_mm_slave_burst_adapter:sink0_endofpacket
 	wire          cmd_mux_006_src_valid;                                                              // cmd_mux_006:src_valid -> sdram_s1_cmd_width_adapter:in_valid
 	wire  [107:0] cmd_mux_006_src_data;                                                               // cmd_mux_006:src_data -> sdram_s1_cmd_width_adapter:in_data
 	wire          cmd_mux_006_src_ready;                                                              // sdram_s1_cmd_width_adapter:in_ready -> cmd_mux_006:src_ready
@@ -1261,10 +1278,10 @@ module lab62_soc_mm_interconnect_0 (
 	wire          avalon_st_adapter_out_0_ready;                                                      // jtag_uart_0_avalon_jtag_slave_agent:rdata_fifo_sink_ready -> avalon_st_adapter:out_0_ready
 	wire    [0:0] avalon_st_adapter_out_0_error;                                                      // avalon_st_adapter:out_0_error -> jtag_uart_0_avalon_jtag_slave_agent:rdata_fifo_sink_error
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_valid;                 // VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_src_valid -> avalon_st_adapter_001:in_0_valid
-	wire   [33:0] vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_data;                  // VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_src_data -> avalon_st_adapter_001:in_0_data
+	wire    [9:0] vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_data;                  // VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_src_data -> avalon_st_adapter_001:in_0_data
 	wire          vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_ready;                 // avalon_st_adapter_001:in_0_ready -> VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_src_ready
 	wire          avalon_st_adapter_001_out_0_valid;                                                  // avalon_st_adapter_001:out_0_valid -> VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_sink_valid
-	wire   [33:0] avalon_st_adapter_001_out_0_data;                                                   // avalon_st_adapter_001:out_0_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_sink_data
+	wire    [9:0] avalon_st_adapter_001_out_0_data;                                                   // avalon_st_adapter_001:out_0_data -> VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_sink_data
 	wire          avalon_st_adapter_001_out_0_ready;                                                  // VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_sink_ready -> avalon_st_adapter_001:out_0_ready
 	wire    [0:0] avalon_st_adapter_001_out_0_error;                                                  // avalon_st_adapter_001:out_0_error -> VGA_text_mode_controller_0_avl_mm_slave_agent:rdata_fifo_sink_error
 	wire          sysid_qsys_0_control_slave_agent_rdata_fifo_src_valid;                              // sysid_qsys_0_control_slave_agent:rdata_fifo_src_valid -> avalon_st_adapter_002:in_0_valid
@@ -1558,21 +1575,21 @@ module lab62_soc_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (12),
-		.AV_DATA_W                      (32),
-		.UAV_DATA_W                     (32),
+		.AV_ADDRESS_W                   (6),
+		.AV_DATA_W                      (8),
+		.UAV_DATA_W                     (8),
 		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (4),
-		.UAV_BYTEENABLE_W               (4),
+		.AV_BYTEENABLE_W                (1),
+		.UAV_BYTEENABLE_W               (1),
 		.UAV_ADDRESS_W                  (28),
-		.UAV_BURSTCOUNT_W               (3),
+		.UAV_BURSTCOUNT_W               (1),
 		.AV_READLATENCY                 (0),
 		.USE_READDATAVALID              (0),
 		.USE_WAITREQUEST                (0),
 		.USE_UAV_CLKEN                  (0),
 		.USE_READRESPONSE               (0),
 		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (4),
+		.AV_SYMBOLS_PER_WORD            (1),
 		.AV_ADDRESS_SYMBOLS             (0),
 		.AV_BURSTCOUNT_SYMBOLS          (0),
 		.AV_CONSTANT_BURST_BEHAVIOR     (0),
@@ -1602,11 +1619,11 @@ module lab62_soc_mm_interconnect_0 (
 		.av_read                (VGA_text_mode_controller_0_avl_mm_slave_read),                   //                         .read
 		.av_readdata            (VGA_text_mode_controller_0_avl_mm_slave_readdata),               //                         .readdata
 		.av_writedata           (VGA_text_mode_controller_0_avl_mm_slave_writedata),              //                         .writedata
-		.av_byteenable          (VGA_text_mode_controller_0_avl_mm_slave_byteenable),             //                         .byteenable
 		.av_chipselect          (VGA_text_mode_controller_0_avl_mm_slave_chipselect),             //                         .chipselect
 		.av_begintransfer       (),                                                               //              (terminated)
 		.av_beginbursttransfer  (),                                                               //              (terminated)
 		.av_burstcount          (),                                                               //              (terminated)
+		.av_byteenable          (),                                                               //              (terminated)
 		.av_readdatavalid       (1'b0),                                                           //              (terminated)
 		.av_waitrequest         (1'b0),                                                           //              (terminated)
 		.av_writebyteenable     (),                                                               //              (terminated)
@@ -2869,92 +2886,92 @@ module lab62_soc_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (107),
-		.PKT_ORI_BURST_SIZE_L      (105),
-		.PKT_RESPONSE_STATUS_H     (104),
-		.PKT_RESPONSE_STATUS_L     (103),
-		.PKT_BURST_SIZE_H          (78),
-		.PKT_BURST_SIZE_L          (76),
-		.PKT_TRANS_LOCK            (68),
-		.PKT_BEGIN_BURST           (83),
-		.PKT_PROTECTION_H          (98),
-		.PKT_PROTECTION_L          (96),
-		.PKT_BURSTWRAP_H           (75),
-		.PKT_BURSTWRAP_L           (73),
-		.PKT_BYTE_CNT_H            (72),
-		.PKT_BYTE_CNT_L            (70),
-		.PKT_ADDR_H                (63),
-		.PKT_ADDR_L                (36),
-		.PKT_TRANS_COMPRESSED_READ (64),
-		.PKT_TRANS_POSTED          (65),
-		.PKT_TRANS_WRITE           (66),
-		.PKT_TRANS_READ            (67),
-		.PKT_DATA_H                (31),
+		.PKT_ORI_BURST_SIZE_H      (80),
+		.PKT_ORI_BURST_SIZE_L      (78),
+		.PKT_RESPONSE_STATUS_H     (77),
+		.PKT_RESPONSE_STATUS_L     (76),
+		.PKT_BURST_SIZE_H          (51),
+		.PKT_BURST_SIZE_L          (49),
+		.PKT_TRANS_LOCK            (41),
+		.PKT_BEGIN_BURST           (56),
+		.PKT_PROTECTION_H          (71),
+		.PKT_PROTECTION_L          (69),
+		.PKT_BURSTWRAP_H           (48),
+		.PKT_BURSTWRAP_L           (46),
+		.PKT_BYTE_CNT_H            (45),
+		.PKT_BYTE_CNT_L            (43),
+		.PKT_ADDR_H                (36),
+		.PKT_ADDR_L                (9),
+		.PKT_TRANS_COMPRESSED_READ (37),
+		.PKT_TRANS_POSTED          (38),
+		.PKT_TRANS_WRITE           (39),
+		.PKT_TRANS_READ            (40),
+		.PKT_DATA_H                (7),
 		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (35),
-		.PKT_BYTEEN_L              (32),
-		.PKT_SRC_ID_H              (89),
-		.PKT_SRC_ID_L              (85),
-		.PKT_DEST_ID_H             (94),
-		.PKT_DEST_ID_L             (90),
+		.PKT_BYTEEN_H              (8),
+		.PKT_BYTEEN_L              (8),
+		.PKT_SRC_ID_H              (62),
+		.PKT_SRC_ID_L              (58),
+		.PKT_DEST_ID_H             (67),
+		.PKT_DEST_ID_L             (63),
 		.PKT_SYMBOL_W              (8),
 		.ST_CHANNEL_W              (17),
-		.ST_DATA_W                 (108),
-		.AVS_BURSTCOUNT_W          (3),
-		.SUPPRESS_0_BYTEEN_CMD     (0),
+		.ST_DATA_W                 (81),
+		.AVS_BURSTCOUNT_W          (1),
+		.SUPPRESS_0_BYTEEN_CMD     (1),
 		.PREVENT_FIFO_OVERFLOW     (1),
 		.USE_READRESPONSE          (0),
 		.USE_WRITERESPONSE         (0),
 		.ECC_ENABLE                (0)
 	) vga_text_mode_controller_0_avl_mm_slave_agent (
-		.clk                     (clk_0_clk_clk),                                                            //             clk.clk
-		.reset                   (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),             //       clk_reset.reset
-		.m0_address              (vga_text_mode_controller_0_avl_mm_slave_agent_m0_address),                 //              m0.address
-		.m0_burstcount           (vga_text_mode_controller_0_avl_mm_slave_agent_m0_burstcount),              //                .burstcount
-		.m0_byteenable           (vga_text_mode_controller_0_avl_mm_slave_agent_m0_byteenable),              //                .byteenable
-		.m0_debugaccess          (vga_text_mode_controller_0_avl_mm_slave_agent_m0_debugaccess),             //                .debugaccess
-		.m0_lock                 (vga_text_mode_controller_0_avl_mm_slave_agent_m0_lock),                    //                .lock
-		.m0_readdata             (vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdata),                //                .readdata
-		.m0_readdatavalid        (vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdatavalid),           //                .readdatavalid
-		.m0_read                 (vga_text_mode_controller_0_avl_mm_slave_agent_m0_read),                    //                .read
-		.m0_waitrequest          (vga_text_mode_controller_0_avl_mm_slave_agent_m0_waitrequest),             //                .waitrequest
-		.m0_writedata            (vga_text_mode_controller_0_avl_mm_slave_agent_m0_writedata),               //                .writedata
-		.m0_write                (vga_text_mode_controller_0_avl_mm_slave_agent_m0_write),                   //                .write
-		.rp_endofpacket          (vga_text_mode_controller_0_avl_mm_slave_agent_rp_endofpacket),             //              rp.endofpacket
-		.rp_ready                (vga_text_mode_controller_0_avl_mm_slave_agent_rp_ready),                   //                .ready
-		.rp_valid                (vga_text_mode_controller_0_avl_mm_slave_agent_rp_valid),                   //                .valid
-		.rp_data                 (vga_text_mode_controller_0_avl_mm_slave_agent_rp_data),                    //                .data
-		.rp_startofpacket        (vga_text_mode_controller_0_avl_mm_slave_agent_rp_startofpacket),           //                .startofpacket
-		.cp_ready                (cmd_mux_001_src_ready),                                                    //              cp.ready
-		.cp_valid                (cmd_mux_001_src_valid),                                                    //                .valid
-		.cp_data                 (cmd_mux_001_src_data),                                                     //                .data
-		.cp_startofpacket        (cmd_mux_001_src_startofpacket),                                            //                .startofpacket
-		.cp_endofpacket          (cmd_mux_001_src_endofpacket),                                              //                .endofpacket
-		.cp_channel              (cmd_mux_001_src_channel),                                                  //                .channel
-		.rf_sink_ready           (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_ready),         //         rf_sink.ready
-		.rf_sink_valid           (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_valid),         //                .valid
-		.rf_sink_startofpacket   (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_startofpacket), //                .startofpacket
-		.rf_sink_endofpacket     (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_endofpacket),   //                .endofpacket
-		.rf_sink_data            (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_data),          //                .data
-		.rf_source_ready         (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_ready),            //       rf_source.ready
-		.rf_source_valid         (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_valid),            //                .valid
-		.rf_source_startofpacket (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_startofpacket),    //                .startofpacket
-		.rf_source_endofpacket   (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_endofpacket),      //                .endofpacket
-		.rf_source_data          (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_data),             //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_001_out_0_ready),                                        // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_001_out_0_valid),                                        //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_001_out_0_data),                                         //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_001_out_0_error),                                        //                .error
-		.rdata_fifo_src_ready    (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_ready),       //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_valid),       //                .valid
-		.rdata_fifo_src_data     (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_data),        //                .data
-		.m0_response             (2'b00),                                                                    //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                                                      //     (terminated)
+		.clk                     (clk_0_clk_clk),                                                               //             clk.clk
+		.reset                   (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),                //       clk_reset.reset
+		.m0_address              (vga_text_mode_controller_0_avl_mm_slave_agent_m0_address),                    //              m0.address
+		.m0_burstcount           (vga_text_mode_controller_0_avl_mm_slave_agent_m0_burstcount),                 //                .burstcount
+		.m0_byteenable           (vga_text_mode_controller_0_avl_mm_slave_agent_m0_byteenable),                 //                .byteenable
+		.m0_debugaccess          (vga_text_mode_controller_0_avl_mm_slave_agent_m0_debugaccess),                //                .debugaccess
+		.m0_lock                 (vga_text_mode_controller_0_avl_mm_slave_agent_m0_lock),                       //                .lock
+		.m0_readdata             (vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdata),                   //                .readdata
+		.m0_readdatavalid        (vga_text_mode_controller_0_avl_mm_slave_agent_m0_readdatavalid),              //                .readdatavalid
+		.m0_read                 (vga_text_mode_controller_0_avl_mm_slave_agent_m0_read),                       //                .read
+		.m0_waitrequest          (vga_text_mode_controller_0_avl_mm_slave_agent_m0_waitrequest),                //                .waitrequest
+		.m0_writedata            (vga_text_mode_controller_0_avl_mm_slave_agent_m0_writedata),                  //                .writedata
+		.m0_write                (vga_text_mode_controller_0_avl_mm_slave_agent_m0_write),                      //                .write
+		.rp_endofpacket          (vga_text_mode_controller_0_avl_mm_slave_agent_rp_endofpacket),                //              rp.endofpacket
+		.rp_ready                (vga_text_mode_controller_0_avl_mm_slave_agent_rp_ready),                      //                .ready
+		.rp_valid                (vga_text_mode_controller_0_avl_mm_slave_agent_rp_valid),                      //                .valid
+		.rp_data                 (vga_text_mode_controller_0_avl_mm_slave_agent_rp_data),                       //                .data
+		.rp_startofpacket        (vga_text_mode_controller_0_avl_mm_slave_agent_rp_startofpacket),              //                .startofpacket
+		.cp_ready                (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_ready),         //              cp.ready
+		.cp_valid                (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_valid),         //                .valid
+		.cp_data                 (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_data),          //                .data
+		.cp_startofpacket        (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_startofpacket), //                .startofpacket
+		.cp_endofpacket          (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_endofpacket),   //                .endofpacket
+		.cp_channel              (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_channel),       //                .channel
+		.rf_sink_ready           (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_ready),            //         rf_sink.ready
+		.rf_sink_valid           (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_valid),            //                .valid
+		.rf_sink_startofpacket   (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
+		.rf_sink_endofpacket     (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
+		.rf_sink_data            (vga_text_mode_controller_0_avl_mm_slave_agent_rsp_fifo_out_data),             //                .data
+		.rf_source_ready         (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_ready),               //       rf_source.ready
+		.rf_source_valid         (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_valid),               //                .valid
+		.rf_source_startofpacket (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_startofpacket),       //                .startofpacket
+		.rf_source_endofpacket   (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_endofpacket),         //                .endofpacket
+		.rf_source_data          (vga_text_mode_controller_0_avl_mm_slave_agent_rf_source_data),                //                .data
+		.rdata_fifo_sink_ready   (avalon_st_adapter_001_out_0_ready),                                           // rdata_fifo_sink.ready
+		.rdata_fifo_sink_valid   (avalon_st_adapter_001_out_0_valid),                                           //                .valid
+		.rdata_fifo_sink_data    (avalon_st_adapter_001_out_0_data),                                            //                .data
+		.rdata_fifo_sink_error   (avalon_st_adapter_001_out_0_error),                                           //                .error
+		.rdata_fifo_src_ready    (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
+		.rdata_fifo_src_valid    (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_valid),          //                .valid
+		.rdata_fifo_src_data     (vga_text_mode_controller_0_avl_mm_slave_agent_rdata_fifo_src_data),           //                .data
+		.m0_response             (2'b00),                                                                       //     (terminated)
+		.m0_writeresponsevalid   (1'b0)                                                                         //     (terminated)
 	);
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (109),
+		.BITS_PER_SYMBOL     (82),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -5214,6 +5231,56 @@ module lab62_soc_mm_interconnect_0 (
 	);
 
 	altera_merlin_burst_adapter #(
+		.PKT_ADDR_H                (36),
+		.PKT_ADDR_L                (9),
+		.PKT_BEGIN_BURST           (56),
+		.PKT_BYTE_CNT_H            (45),
+		.PKT_BYTE_CNT_L            (43),
+		.PKT_BYTEEN_H              (8),
+		.PKT_BYTEEN_L              (8),
+		.PKT_BURST_SIZE_H          (51),
+		.PKT_BURST_SIZE_L          (49),
+		.PKT_BURST_TYPE_H          (53),
+		.PKT_BURST_TYPE_L          (52),
+		.PKT_BURSTWRAP_H           (48),
+		.PKT_BURSTWRAP_L           (46),
+		.PKT_TRANS_COMPRESSED_READ (37),
+		.PKT_TRANS_WRITE           (39),
+		.PKT_TRANS_READ            (40),
+		.OUT_NARROW_SIZE           (0),
+		.IN_NARROW_SIZE            (0),
+		.OUT_FIXED                 (0),
+		.OUT_COMPLETE_WRAP         (0),
+		.ST_DATA_W                 (81),
+		.ST_CHANNEL_W              (17),
+		.OUT_BYTE_CNT_H            (43),
+		.OUT_BURSTWRAP_H           (48),
+		.COMPRESSED_READ_SUPPORT   (0),
+		.BYTEENABLE_SYNTHESIS      (1),
+		.PIPE_INPUTS               (0),
+		.NO_WRAP_SUPPORT           (0),
+		.INCOMPLETE_WRAP_SUPPORT   (0),
+		.BURSTWRAP_CONST_MASK      (7),
+		.BURSTWRAP_CONST_VALUE     (7),
+		.ADAPTER_VERSION           ("13.1")
+	) vga_text_mode_controller_0_avl_mm_slave_burst_adapter (
+		.clk                   (clk_0_clk_clk),                                                               //       cr0.clk
+		.reset                 (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),                // cr0_reset.reset
+		.sink0_valid           (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_valid),         //     sink0.valid
+		.sink0_data            (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_data),          //          .data
+		.sink0_channel         (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_channel),       //          .channel
+		.sink0_startofpacket   (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.sink0_endofpacket     (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_endofpacket),   //          .endofpacket
+		.sink0_ready           (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_ready),         //          .ready
+		.source0_valid         (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_valid),         //   source0.valid
+		.source0_data          (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_data),          //          .data
+		.source0_channel       (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_channel),       //          .channel
+		.source0_startofpacket (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_startofpacket), //          .startofpacket
+		.source0_endofpacket   (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_endofpacket),   //          .endofpacket
+		.source0_ready         (vga_text_mode_controller_0_avl_mm_slave_burst_adapter_source0_ready)          //          .ready
+	);
+
+	altera_merlin_burst_adapter #(
 		.PKT_ADDR_H                (45),
 		.PKT_ADDR_L                (18),
 		.PKT_BEGIN_BURST           (65),
@@ -5892,20 +5959,20 @@ module lab62_soc_mm_interconnect_0 (
 	);
 
 	lab62_soc_mm_interconnect_0_rsp_demux_001 rsp_demux_001 (
-		.clk                (clk_0_clk_clk),                                                //       clk.clk
-		.reset              (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_003_src_ready),                                         //      sink.ready
-		.sink_channel       (router_003_src_channel),                                       //          .channel
-		.sink_data          (router_003_src_data),                                          //          .data
-		.sink_startofpacket (router_003_src_startofpacket),                                 //          .startofpacket
-		.sink_endofpacket   (router_003_src_endofpacket),                                   //          .endofpacket
-		.sink_valid         (router_003_src_valid),                                         //          .valid
-		.src0_ready         (rsp_demux_001_src0_ready),                                     //      src0.ready
-		.src0_valid         (rsp_demux_001_src0_valid),                                     //          .valid
-		.src0_data          (rsp_demux_001_src0_data),                                      //          .data
-		.src0_channel       (rsp_demux_001_src0_channel),                                   //          .channel
-		.src0_startofpacket (rsp_demux_001_src0_startofpacket),                             //          .startofpacket
-		.src0_endofpacket   (rsp_demux_001_src0_endofpacket)                                //          .endofpacket
+		.clk                (clk_0_clk_clk),                                                               //       clk.clk
+		.reset              (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),                // clk_reset.reset
+		.sink_ready         (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_ready),         //      sink.ready
+		.sink_channel       (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_channel),       //          .channel
+		.sink_data          (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_data),          //          .data
+		.sink_startofpacket (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.sink_endofpacket   (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_endofpacket),   //          .endofpacket
+		.sink_valid         (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_valid),         //          .valid
+		.src0_ready         (rsp_demux_001_src0_ready),                                                    //      src0.ready
+		.src0_valid         (rsp_demux_001_src0_valid),                                                    //          .valid
+		.src0_data          (rsp_demux_001_src0_data),                                                     //          .data
+		.src0_channel       (rsp_demux_001_src0_channel),                                                  //          .channel
+		.src0_startofpacket (rsp_demux_001_src0_startofpacket),                                            //          .startofpacket
+		.src0_endofpacket   (rsp_demux_001_src0_endofpacket)                                               //          .endofpacket
 	);
 
 	lab62_soc_mm_interconnect_0_rsp_demux rsp_demux_002 (
@@ -6474,6 +6541,72 @@ module lab62_soc_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
+		.IN_PKT_ADDR_H                 (36),
+		.IN_PKT_ADDR_L                 (9),
+		.IN_PKT_DATA_H                 (7),
+		.IN_PKT_DATA_L                 (0),
+		.IN_PKT_BYTEEN_H               (8),
+		.IN_PKT_BYTEEN_L               (8),
+		.IN_PKT_BYTE_CNT_H             (45),
+		.IN_PKT_BYTE_CNT_L             (43),
+		.IN_PKT_TRANS_COMPRESSED_READ  (37),
+		.IN_PKT_TRANS_WRITE            (39),
+		.IN_PKT_BURSTWRAP_H            (48),
+		.IN_PKT_BURSTWRAP_L            (46),
+		.IN_PKT_BURST_SIZE_H           (51),
+		.IN_PKT_BURST_SIZE_L           (49),
+		.IN_PKT_RESPONSE_STATUS_H      (77),
+		.IN_PKT_RESPONSE_STATUS_L      (76),
+		.IN_PKT_TRANS_EXCLUSIVE        (42),
+		.IN_PKT_BURST_TYPE_H           (53),
+		.IN_PKT_BURST_TYPE_L           (52),
+		.IN_PKT_ORI_BURST_SIZE_L       (78),
+		.IN_PKT_ORI_BURST_SIZE_H       (80),
+		.IN_ST_DATA_W                  (81),
+		.OUT_PKT_ADDR_H                (63),
+		.OUT_PKT_ADDR_L                (36),
+		.OUT_PKT_DATA_H                (31),
+		.OUT_PKT_DATA_L                (0),
+		.OUT_PKT_BYTEEN_H              (35),
+		.OUT_PKT_BYTEEN_L              (32),
+		.OUT_PKT_BYTE_CNT_H            (72),
+		.OUT_PKT_BYTE_CNT_L            (70),
+		.OUT_PKT_TRANS_COMPRESSED_READ (64),
+		.OUT_PKT_BURST_SIZE_H          (78),
+		.OUT_PKT_BURST_SIZE_L          (76),
+		.OUT_PKT_RESPONSE_STATUS_H     (104),
+		.OUT_PKT_RESPONSE_STATUS_L     (103),
+		.OUT_PKT_TRANS_EXCLUSIVE       (69),
+		.OUT_PKT_BURST_TYPE_H          (80),
+		.OUT_PKT_BURST_TYPE_L          (79),
+		.OUT_PKT_ORI_BURST_SIZE_L      (105),
+		.OUT_PKT_ORI_BURST_SIZE_H      (107),
+		.OUT_ST_DATA_W                 (108),
+		.ST_CHANNEL_W                  (17),
+		.OPTIMIZE_FOR_RSP              (1),
+		.RESPONSE_PATH                 (1),
+		.CONSTANT_BURST_SIZE           (1),
+		.PACKING                       (1),
+		.ENABLE_ADDRESS_ALIGNMENT      (0)
+	) vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter (
+		.clk                  (clk_0_clk_clk),                                                               //       clk.clk
+		.reset                (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),                // clk_reset.reset
+		.in_valid             (router_003_src_valid),                                                        //      sink.valid
+		.in_channel           (router_003_src_channel),                                                      //          .channel
+		.in_startofpacket     (router_003_src_startofpacket),                                                //          .startofpacket
+		.in_endofpacket       (router_003_src_endofpacket),                                                  //          .endofpacket
+		.in_ready             (router_003_src_ready),                                                        //          .ready
+		.in_data              (router_003_src_data),                                                         //          .data
+		.out_endofpacket      (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_data),          //          .data
+		.out_channel          (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_channel),       //          .channel
+		.out_valid            (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_valid),         //          .valid
+		.out_ready            (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (vga_text_mode_controller_0_avl_mm_slave_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                       // (terminated)
+	);
+
+	altera_merlin_width_adapter #(
 		.IN_PKT_ADDR_H                 (45),
 		.IN_PKT_ADDR_L                 (18),
 		.IN_PKT_DATA_H                 (15),
@@ -6537,6 +6670,72 @@ module lab62_soc_mm_interconnect_0 (
 		.out_ready            (sdram_s1_rsp_width_adapter_src_ready),         //          .ready
 		.out_startofpacket    (sdram_s1_rsp_width_adapter_src_startofpacket), //          .startofpacket
 		.in_command_size_data (3'b000)                                        // (terminated)
+	);
+
+	altera_merlin_width_adapter #(
+		.IN_PKT_ADDR_H                 (63),
+		.IN_PKT_ADDR_L                 (36),
+		.IN_PKT_DATA_H                 (31),
+		.IN_PKT_DATA_L                 (0),
+		.IN_PKT_BYTEEN_H               (35),
+		.IN_PKT_BYTEEN_L               (32),
+		.IN_PKT_BYTE_CNT_H             (72),
+		.IN_PKT_BYTE_CNT_L             (70),
+		.IN_PKT_TRANS_COMPRESSED_READ  (64),
+		.IN_PKT_TRANS_WRITE            (66),
+		.IN_PKT_BURSTWRAP_H            (75),
+		.IN_PKT_BURSTWRAP_L            (73),
+		.IN_PKT_BURST_SIZE_H           (78),
+		.IN_PKT_BURST_SIZE_L           (76),
+		.IN_PKT_RESPONSE_STATUS_H      (104),
+		.IN_PKT_RESPONSE_STATUS_L      (103),
+		.IN_PKT_TRANS_EXCLUSIVE        (69),
+		.IN_PKT_BURST_TYPE_H           (80),
+		.IN_PKT_BURST_TYPE_L           (79),
+		.IN_PKT_ORI_BURST_SIZE_L       (105),
+		.IN_PKT_ORI_BURST_SIZE_H       (107),
+		.IN_ST_DATA_W                  (108),
+		.OUT_PKT_ADDR_H                (36),
+		.OUT_PKT_ADDR_L                (9),
+		.OUT_PKT_DATA_H                (7),
+		.OUT_PKT_DATA_L                (0),
+		.OUT_PKT_BYTEEN_H              (8),
+		.OUT_PKT_BYTEEN_L              (8),
+		.OUT_PKT_BYTE_CNT_H            (45),
+		.OUT_PKT_BYTE_CNT_L            (43),
+		.OUT_PKT_TRANS_COMPRESSED_READ (37),
+		.OUT_PKT_BURST_SIZE_H          (51),
+		.OUT_PKT_BURST_SIZE_L          (49),
+		.OUT_PKT_RESPONSE_STATUS_H     (77),
+		.OUT_PKT_RESPONSE_STATUS_L     (76),
+		.OUT_PKT_TRANS_EXCLUSIVE       (42),
+		.OUT_PKT_BURST_TYPE_H          (53),
+		.OUT_PKT_BURST_TYPE_L          (52),
+		.OUT_PKT_ORI_BURST_SIZE_L      (78),
+		.OUT_PKT_ORI_BURST_SIZE_H      (80),
+		.OUT_ST_DATA_W                 (81),
+		.ST_CHANNEL_W                  (17),
+		.OPTIMIZE_FOR_RSP              (0),
+		.RESPONSE_PATH                 (0),
+		.CONSTANT_BURST_SIZE           (1),
+		.PACKING                       (1),
+		.ENABLE_ADDRESS_ALIGNMENT      (0)
+	) vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter (
+		.clk                  (clk_0_clk_clk),                                                               //       clk.clk
+		.reset                (VGA_text_mode_controller_0_RESET_reset_bridge_in_reset_reset),                // clk_reset.reset
+		.in_valid             (cmd_mux_001_src_valid),                                                       //      sink.valid
+		.in_channel           (cmd_mux_001_src_channel),                                                     //          .channel
+		.in_startofpacket     (cmd_mux_001_src_startofpacket),                                               //          .startofpacket
+		.in_endofpacket       (cmd_mux_001_src_endofpacket),                                                 //          .endofpacket
+		.in_ready             (cmd_mux_001_src_ready),                                                       //          .ready
+		.in_data              (cmd_mux_001_src_data),                                                        //          .data
+		.out_endofpacket      (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_data),          //          .data
+		.out_channel          (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_channel),       //          .channel
+		.out_valid            (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_valid),         //          .valid
+		.out_ready            (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (vga_text_mode_controller_0_avl_mm_slave_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                       // (terminated)
 	);
 
 	altera_merlin_width_adapter #(
@@ -6770,17 +6969,17 @@ module lab62_soc_mm_interconnect_0 (
 		.out_0_error    (avalon_st_adapter_out_0_error)                             //         .error
 	);
 
-	lab62_soc_mm_interconnect_0_avalon_st_adapter #(
-		.inBitsPerSymbol (34),
+	lab62_soc_mm_interconnect_0_avalon_st_adapter_001 #(
+		.inBitsPerSymbol (10),
 		.inUsePackets    (0),
-		.inDataWidth     (34),
+		.inDataWidth     (10),
 		.inChannelWidth  (0),
 		.inErrorWidth    (0),
 		.inUseEmptyPort  (0),
 		.inUseValid      (1),
 		.inUseReady      (1),
 		.inReadyLatency  (0),
-		.outDataWidth    (34),
+		.outDataWidth    (10),
 		.outChannelWidth (0),
 		.outErrorWidth   (1),
 		.outUseEmptyPort (0),

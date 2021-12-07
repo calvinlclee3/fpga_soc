@@ -53,7 +53,8 @@ logic [9:0] DrawX, DrawY;
 logic [3:0] pre_red, pre_green, pre_blue;
 
 logic [11:0] PALETTE_REG [15] = '{ 12'h000, 12'h111, 12'h222, 12'h333, 12'h444, 12'h555, 12'h666, 12'h777, 12'h999, 12'haaa, 12'hbbb, 12'hccc, 12'hddd, 12'heee, 12'hfff};
-logic [11:0] background_colors [4] = '{ 12'h742, 12'hfa9, 12'h8d0, 12'h000 };
+// logic [11:0] background_colors [4] = '{ 12'h742, 12'hfa9, 12'h8d0, 12'h000 };
+logic [11:0] background_colors [4] = '{ 12'h643, 12'hfec, 12'hbc2, 12'h000 };
 logic [1:0] background_index;
 logic board_on;
 
@@ -67,6 +68,10 @@ logic [7:0] m_pixel_addr;
 logic mouse_on;
 
 logic [7:0] board_READDATA, mouse_READDATA;
+
+logic [1:0] end_game_on;
+logic [14:0] end_game_addr;
+logic [3:0] end_game_palette_index;
 
 // Submodule Declarations
 vga_controller vga_controller0 (.Clk(CLK), .Reset(RESET), .hs(hs), .vs(vs), .pixel_clk(pixel_clk), 
@@ -85,6 +90,11 @@ mouse m (.CLK(CLK), .vs(vs), .AVL_READ(AVL_READ), .AVL_WRITE(AVL_WRITE),
 		 .AVL_CS(AVL_CS & AVL_ADDR[6]), .AVL_ADDR(AVL_ADDR[5:0]),
 		 .AVL_WRITEDATA(AVL_WRITEDATA), .AVL_READDATA(mouse_READDATA),
 		 .x_pos_out(mouseX), .y_pos_out(mouseY)); 
+
+end_game eg (.CLK(CLK), .DrawX(DrawX), .DrawY(DrawY), .AVL_WRITE(AVL_WRITE), .AVL_CS(AVL_CS), 
+             .AVL_ADDR(AVL_ADDR), .AVL_WRITEDATA(AVL_WRITEDATA), .end_game_on(end_game_on), .img_addr(end_game_addr));
+
+end_game_sprite_ram egsr (.CLK(CLK), .select(end_game_on), .pixel_addr(end_game_addr), .data_out(end_game_palette_index));
 
 always_comb begin
 	
@@ -128,6 +138,13 @@ always_comb begin
 			pre_red = PALETTE_REG[m_palette_index][11:8];
 			pre_green = PALETTE_REG[m_palette_index][7:4];
 			pre_blue = PALETTE_REG[m_palette_index][3:0];	
+		end
+		// White or Black end game screen is already selected in the sprite_ram module.
+		else if(end_game_on == 2'b01 || end_game_on == 2'b10)
+		begin
+			pre_red = PALETTE_REG[end_game_palette_index][11:8];
+			pre_green = PALETTE_REG[end_game_palette_index][7:4];
+			pre_blue = PALETTE_REG[end_game_palette_index][3:0];	
 		end
 		else if(board_on)
 		begin

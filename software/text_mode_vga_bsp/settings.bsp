@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>2021/12/5 上午 12:49:05</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1638686945501</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>2021/12/6 下午 11:58:24</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1638856704052</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>C:\Users\calvi\Downloads\ECE_385\Lab_6\wk1\software\text_mode_vga_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\lab62_soc.sopcinfo</SopcDesignFile>

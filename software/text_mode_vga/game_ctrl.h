@@ -39,6 +39,13 @@ struct BOARD {
 	alt_u16 x_pos;
 	alt_u16 y_pos;
 
+	/* 
+	 * flag to determine if end game screen should be displayed 
+	 * 0 if game has not ended
+	 * 1 if black won
+	 * 2 if white won
+	 */
+	alt_u8 end_game;
 };
 
 static volatile struct BOARD* vga_ctrl = VGA_TEXT_MODE_CONTROLLER_0_BASE;
@@ -52,4 +59,8 @@ void simulateGame();
 void processMouseClick(alt_u8 button);
 
 void clearHighlight();
+
+/* Call this function with color MACRO defined above
+   to display corresponding end game screen */
+void endGame(alt_u8 color);
 #endif 

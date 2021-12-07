@@ -23,7 +23,9 @@ typedef enum {
 	INIT_POS_DOWN,
 	INIT_POS_UP,
 	FINAL_POS_DOWN,
-	FINAL_POS_UP
+	FINAL_POS_UP,
+	END_GAME
+	// Maybe we can have END_GAME_WHITE and END_GAME_BLACK seperately
 
 } state;
 
@@ -65,6 +67,8 @@ void initGame()
 	/* Intialize the FSM used for mouse click processing */
 	st = START;
 	player_turn = WHITE;
+	/* Game has not ended */
+	vga_ctrl->end_game = 0;
 
 }
 
@@ -77,78 +81,96 @@ void processMouseClick(alt_u8 button)
 	// printf("state: %d\n", st);
 
 	// Reset Game
-	if(button == 4)
+	if(button == SCROLL)
 	{
-		initGame();
+		st = END_GAME;
+		endGame(WHITE);
+		usleep (500000);
+		endGame(BLACK);
 	}
-	switch(st)
+	else
 	{
-		case DESELECT:
-			if(button == NO_PRESS)
-			{
+		switch(st)
+		{
+			case DESELECT:
+				if(button == NO_PRESS)
+				{
+					st = START;
+					selectedX = NOT_SELECTED;
+					selectedY = NOT_SELECTED;
+					clearHighlight();
+				}
+				break;
+			case START:
+				if(button == LEFT_CLICK)
+				{
+					if ((vga_ctrl->x_pos >= 0 && vga_ctrl->x_pos < 480) && 
+						(vga_ctrl->y_pos >= 0 && vga_ctrl->y_pos < 480)) 
+					{
+						selectedX = vga_ctrl->x_pos / 60;
+						selectedY = vga_ctrl->y_pos / 60;
+						if(checkMove(selectedY, selectedX) != 0)
+						{
+							st = INIT_POS_DOWN;
+						}	
+					}
+				}
+				break;
+			case INIT_POS_DOWN:
+				if(button == NO_PRESS)
+				{
+					st = INIT_POS_UP;
+				}
+				break;
+			case INIT_POS_UP:
+				if(button == LEFT_CLICK)
+				{
+					// check if the player intends to deselect the selected chess piece by clicking on it
+					if((selectedX == vga_ctrl->x_pos / 60) && (selectedY == vga_ctrl->y_pos / 60))
+					{
+						st = DESELECT;
+					}
+					else if ((vga_ctrl->x_pos >= 0 && vga_ctrl->x_pos < 480) && 
+							(vga_ctrl->y_pos >= 0 && vga_ctrl->y_pos < 480)) 
+					{	
+						if(makeMove(selectedY, selectedX, vga_ctrl->y_pos / 60, vga_ctrl->x_pos / 60) != 0)
+						{
+							// Only update player turn if legal move is made.
+							player_turn ^= 1;
+						}
+						st = FINAL_POS_DOWN;
+							
+					}
+				}
+				break;
+			case FINAL_POS_DOWN:
+				if(button == NO_PRESS)
+				{
+					st = FINAL_POS_UP;
+				}
+				break;
+			case FINAL_POS_UP:
 				st = START;
 				selectedX = NOT_SELECTED;
 				selectedY = NOT_SELECTED;
 				clearHighlight();
-			}
-			break;
-		case START:
-			if(button == LEFT_CLICK)
-			{
-				if ((vga_ctrl->x_pos >= 0 && vga_ctrl->x_pos < 480) && 
-					(vga_ctrl->y_pos >= 0 && vga_ctrl->y_pos < 480)) 
+				break;
+			
+			case END_GAME:
+				if(button == LEFT_CLICK)
 				{
-					selectedX = vga_ctrl->x_pos / 60;
-					selectedY = vga_ctrl->y_pos / 60;
-					if(checkMove(selectedY, selectedX) != 0)
+					if((vga_ctrl->x_pos >= 180 && vga_ctrl->x_pos < 300) && 
+					(vga_ctrl->y_pos >= 240 && vga_ctrl->y_pos < 300))
 					{
-						st = INIT_POS_DOWN;
-					}	
-				}
-			}
-			break;
-		case INIT_POS_DOWN:
-			if(button == NO_PRESS)
-			{
-				st = INIT_POS_UP;
-			}
-			break;
-		case INIT_POS_UP:
-			if(button == LEFT_CLICK)
-			{
-				// check if the player intends to deselect the selected chess piece by clicking on it
-				if((selectedX == vga_ctrl->x_pos / 60) && (selectedY == vga_ctrl->y_pos / 60))
-				{
-					st = DESELECT;
-				}
-				else if ((vga_ctrl->x_pos >= 0 && vga_ctrl->x_pos < 480) && 
-					    (vga_ctrl->y_pos >= 0 && vga_ctrl->y_pos < 480)) 
-				{	
-					if(makeMove(selectedY, selectedX, vga_ctrl->y_pos / 60, vga_ctrl->x_pos / 60) != 0)
-					{
-						// Only update player turn if legal move is made.
-						player_turn ^= 1;
+						initGame();
 					}
-					st = FINAL_POS_DOWN;
-						
 				}
-			}
-			break;
-		case FINAL_POS_DOWN:
-			if(button == NO_PRESS)
-			{
-				st = FINAL_POS_UP;
-			}
-			break;
-		case FINAL_POS_UP:
-			st = START;
-			selectedX = NOT_SELECTED;
-			selectedY = NOT_SELECTED;
-			clearHighlight();
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
+		}
 	}
+	
 }
 
 alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol) 
@@ -529,6 +551,23 @@ void clearHighlight()
 	}
 	usleep(1000);
 }
+
+void endGame(alt_u8 color)
+{
+	if(color == BLACK)
+	{
+		vga_ctrl->end_game = 1;
+	}
+	else if(color == WHITE)
+	{
+		vga_ctrl->end_game = 2;
+	}
+	else
+	{
+		printf("Error at endGame()!");
+	}
+}
+
 
 void simulateGame()
 {

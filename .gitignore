@@ -69,7 +69,6 @@ _output_files/
 PLLJ_PLLSPE_INFO.txt
 
 # lclee3
-software/
 .metadata/
 lab61soc/
 simulation/

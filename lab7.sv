@@ -81,7 +81,7 @@ module lab7 (
 	assign USB_IRQ = ARDUINO_IO[9];
 	
 	//Assignments specific to Sparkfun USBHostShield-v13
-	//assign ARDUINO_IO[7] = USB_RST;
+	assign ARDUINO_IO[7] = USB_RST;
 	//assign ARDUINO_IO[8] = 1'bZ;
 	//assign USB_GPX = ARDUINO_IO[8];
 		
@@ -90,6 +90,7 @@ module lab7 (
 	assign ARDUINO_IO[8] = 1'bZ;
 	//GPX is unconnected to shield, not needed for standard USB host - set to 0 to prevent interrupt
 	assign USB_GPX = 1'b0;
+	assign ARDUINO_IO[6] = 1'b1;
 	
 	//HEX drivers to convert numbers to HEX output
 	HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);

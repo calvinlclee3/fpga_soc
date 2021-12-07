@@ -35,7 +35,7 @@ module vga_text_avl_interface (
 	input  logic AVL_READ,					// Avalon-MM Read
 	input  logic AVL_WRITE,					// Avalon-MM Write
 	input  logic AVL_CS,					// Avalon-MM Chip Select
-	input  logic [5:0] AVL_ADDR,			// Avalon-MM Address
+	input  logic [6:0] AVL_ADDR,			// Avalon-MM Address
 	input  logic [7:0] AVL_WRITEDATA,		// Avalon-MM Write Data
 	output logic [7:0] AVL_READDATA,		// Avalon-MM Read Data
 	
@@ -49,20 +49,24 @@ module vga_text_avl_interface (
 
 // Local Variables
 logic blank, pixel_clk;
-logic board_on;
-
 logic [9:0] DrawX, DrawY;
 logic [3:0] pre_red, pre_green, pre_blue;
 
-
 logic [11:0] PALETTE_REG [15] = '{ 12'h000, 12'h111, 12'h222, 12'h333, 12'h444, 12'h555, 12'h666, 12'h777, 12'h999, 12'haaa, 12'hbbb, 12'hccc, 12'hddd, 12'heee, 12'hfff};
-logic [11:0] background_colors [2] = '{ 12'h742, 12'hfa9 };
-logic background_index;
+logic [11:0] background_colors [4] = '{ 12'h742, 12'hfa9, 12'h8d0, 12'h000 };
+logic [1:0] background_index;
+logic board_on;
 
 logic [11:0] pixel_addr;
 logic [3:0] img_addr;
 logic [3:0] palette_index;
 
+logic [9:0] mouseX, mouseY;
+logic [3:0] m_palette_index;
+logic [7:0] m_pixel_addr;
+logic mouse_on;
+
+logic [7:0] board_READDATA, mouse_READDATA;
 
 // Submodule Declarations
 vga_controller vga_controller0 (.Clk(CLK), .Reset(RESET), .hs(hs), .vs(vs), .pixel_clk(pixel_clk), 
@@ -70,10 +74,43 @@ vga_controller vga_controller0 (.Clk(CLK), .Reset(RESET), .hs(hs), .vs(vs), .pix
 
 sprite_ram ram (.CLK(CLK), .img_addr(img_addr), .pixel_addr(pixel_addr), .data_out(palette_index));
 
-board b (.CLK(CLK), .DrawX(DrawX), .DrawY(DrawY), .AVL_ADDR(AVL_ADDR),
-		.AVL_READ(AVL_READ), .AVL_WRITE(AVL_WRITE), .AVL_CS(AVL_CS), 
-		.AVL_WRITEDATA(AVL_WRITEDATA[3:0]), .AVL_READDATA(AVL_READDATA[3:0]),
-		.pixel_addr(pixel_addr), .img_addr(img_addr), .board_on(board_on), .background_index(background_index));
+mouse_sprite_ram mram (.CLK(CLK), .pixel_addr(m_pixel_addr), .data_out(m_palette_index));
+
+board b (.CLK(CLK), .DrawX(DrawX), .DrawY(DrawY), .AVL_ADDR(AVL_ADDR[5:0]),
+		   .AVL_READ(AVL_READ), .AVL_WRITE(AVL_WRITE), .AVL_CS(AVL_CS & ~AVL_ADDR[6]), 
+		   .AVL_WRITEDATA(AVL_WRITEDATA), .AVL_READDATA(board_READDATA),
+		   .pixel_addr(pixel_addr), .img_addr(img_addr), .board_on(board_on), .background_index(background_index));
+
+mouse m (.CLK(CLK), .vs(vs), .AVL_READ(AVL_READ), .AVL_WRITE(AVL_WRITE), 
+		 .AVL_CS(AVL_CS & AVL_ADDR[6]), .AVL_ADDR(AVL_ADDR[5:0]),
+		 .AVL_WRITEDATA(AVL_WRITEDATA), .AVL_READDATA(mouse_READDATA),
+		 .x_pos_out(mouseX), .y_pos_out(mouseY)); 
+
+always_comb begin
+	
+	/* MUX to select AVL_READDATA */
+	if(AVL_ADDR[6])
+		AVL_READDATA = mouse_READDATA;
+	else
+		AVL_READDATA = board_READDATA;
+
+	/* Determine whether the cursor should be drawn */
+	if ((DrawX - mouseX) >= 0 && (DrawX - mouseX) < 15 && 
+		(DrawY - mouseY) >= 0 && (DrawY - mouseY) < 15)
+	begin
+		m_pixel_addr = (DrawY - mouseY) * 15 + (DrawX - mouseX);
+		if(m_palette_index == 4'hf)
+			mouse_on = 1'b0;
+		else
+			mouse_on = 1'b1;
+	end
+	else
+	begin
+		mouse_on = 1'b0;
+		m_pixel_addr = 8'hx;
+	end
+
+end
 
 always_comb begin
   
@@ -86,7 +123,13 @@ always_comb begin
 	end
 	else begin
 
-		if(board_on)
+		if(mouse_on)
+		begin
+			pre_red = PALETTE_REG[m_palette_index][11:8];
+			pre_green = PALETTE_REG[m_palette_index][7:4];
+			pre_blue = PALETTE_REG[m_palette_index][3:0];	
+		end
+		else if(board_on)
 		begin
 			if (palette_index == 4'hf)
 			begin

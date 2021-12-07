@@ -69,6 +69,7 @@ void initGame()
 	player_turn = WHITE;
 	/* Game has not ended */
 	vga_ctrl->end_game = 0;
+	clearHighlight();
 
 }
 
@@ -177,7 +178,7 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 {
 	alt_u8 piece = vga_ctrl->SQUARES[initRow * 8 + initCol];
 	alt_u8 color = piece & 1;
-	alt_u8 pieceType = piece >> 1;
+	alt_u8 pieceType = (piece >> 1) & 7;
 	
 
 	/* Check empty square */
@@ -528,17 +529,36 @@ alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol
 {
 	printf("makeMove called with parameters: (%d, %d) -> (%d, %d)\n", initRow, initCol, finalRow, finalCol);
 	
-	
 	alt_u8 piece = vga_ctrl->SQUARES[initRow * 8 + initCol];
+	alt_u8 color = piece & 1;
+	alt_u8 pieceType = (piece >> 1) & 7;	
+	
+	printf("color: %d, pieceType: %d \n", color, pieceType);
+
 	/* Illegal Move */
 	if((vga_ctrl->SQUARES[finalRow * 8 + finalCol] & 0x10) == 0)
 	{
 		return 0;
 	}
-	vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
-	vga_ctrl->SQUARES[finalRow * 8 + finalCol] = piece;
-	usleep(1000); // adds delay to give time for the hardware to update graphics
+
+	/* SPECIAL CASE: PAWN PROMOTION */
+	if(color == WHITE && pieceType == PAWN && finalRow == 0)
+	{
+		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
+		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = (QUEEN << 1) + color;
+	}
+	else if(color == BLACK && pieceType == PAWN && finalRow == 7)
+	{
+		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
+		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = (QUEEN << 1) + color;
+	}
+	else
+	{
+		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
+		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = piece;
+	}
 	
+	usleep(1000); // adds delay to give time for the hardware to update graphics
 	return 1;
 }
 

@@ -657,6 +657,14 @@
          type = "String";
       }
    }
+   element lab62_soc
+   {
+      datum _originalDeviceFamily
+      {
+         value = "MAX 10";
+         type = "String";
+      }
+   }
    element leds_pio
    {
       datum _sortIndex

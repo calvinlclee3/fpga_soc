@@ -16,6 +16,8 @@ static alt_u8 selectedY = NOT_SELECTED;
 
 static alt_u8 player_turn;
 
+static alt_u8 castling_status;
+
 typedef enum {
 
 	DESELECT,
@@ -69,6 +71,7 @@ void initGame()
 	player_turn = WHITE;
 	/* Game has not ended */
 	vga_ctrl->end_game = 0;
+	castling_status = NO_CASTLE;
 	clearHighlight();
 
 }
@@ -513,6 +516,35 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 					}
 				}
 			}
+
+			/* SPECIAL CASE: CASTLING */
+			if(color == WHITE && initRow == 7 && initCol == 4)
+			{
+				if(vga_ctrl->SQUARES[56] == ((ROOK << 1) + WHITE) && CHECK_SQUARE_EMPTY(7, 1) && CHECK_SQUARE_EMPTY(7, 2) && CHECK_SQUARE_EMPTY(7, 3))
+				{
+					HILITE(initRow, initCol - 2);
+					castling_status = WHITE_CASTLE_LEFT;
+				}
+				else if(vga_ctrl->SQUARES[63] == ((ROOK << 1) + WHITE) && CHECK_SQUARE_EMPTY(7, 5) && CHECK_SQUARE_EMPTY(7, 6))
+				{
+					HILITE(initRow, initCol + 2);
+					castling_status = WHITE_CASTLE_RIGHT;
+				}
+			}
+			else if(color == BLACK && initRow == 0 && initCol == 4)
+			{
+				if(vga_ctrl->SQUARES[0] == ((ROOK << 1) + BLACK) && CHECK_SQUARE_EMPTY(0, 1) && CHECK_SQUARE_EMPTY(0, 2) && CHECK_SQUARE_EMPTY(0, 3))
+				{
+					HILITE(initRow, initCol - 2);
+					castling_status = BLACK_CASTLE_LEFT;
+				}
+				else if(vga_ctrl->SQUARES[7] == ((ROOK << 1) + BLACK) && CHECK_SQUARE_EMPTY(0, 5) && CHECK_SQUARE_EMPTY(0, 6))
+				{
+					HILITE(initRow, initCol + 2);
+					castling_status = BLACK_CASTLE_RIGHT;
+				}
+			}
+				
 			break;
 		default:
 			printf("Panic!\n");
@@ -527,14 +559,14 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 
 alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol)
 {
-	printf("makeMove called with parameters: (%d, %d) -> (%d, %d)\n", initRow, initCol, finalRow, finalCol);
+	// printf("makeMove called with parameters: (%d, %d) -> (%d, %d)\n", initRow, initCol, finalRow, finalCol);
 	
 	alt_u8 piece = vga_ctrl->SQUARES[initRow * 8 + initCol];
 	alt_u8 color = piece & 1;
 	alt_u8 pieceType = (piece >> 1) & 7;	
 	
-	printf("color: %d, pieceType: %d \n", color, pieceType);
-
+	// printf("color: %d, pieceType: %d \n", color, pieceType);
+	printf("Castling Status: %d: \n", castling_status);
 	/* Illegal Move */
 	if((vga_ctrl->SQUARES[finalRow * 8 + finalCol] & 0x10) == 0)
 	{
@@ -551,6 +583,33 @@ alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol
 	{
 		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
 		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = (QUEEN << 1) + color;
+	}
+	/* SPECIAL CASE: CASTLING */
+	else if(castling_status != NO_CASTLE)
+	{
+		if(castling_status == WHITE_CASTLE_LEFT)
+		{
+			vga_ctrl->SQUARES[7 * 8 + 3] = (ROOK << 1) + WHITE;
+			vga_ctrl->SQUARES[7 * 8 + 0] = EMPTY_SQUARE;
+		}
+		else if(castling_status == WHITE_CASTLE_RIGHT)
+		{
+			vga_ctrl->SQUARES[7 * 8 + 5] = (ROOK << 1) + WHITE;
+			vga_ctrl->SQUARES[7 * 8 + 7] = EMPTY_SQUARE;
+		}
+		else if(castling_status == BLACK_CASTLE_LEFT)
+		{
+			vga_ctrl->SQUARES[0 * 8 + 3] = (ROOK << 1) + BLACK;
+			vga_ctrl->SQUARES[0 * 8 + 0] = EMPTY_SQUARE;
+		}
+		else if(castling_status == BLACK_CASTLE_RIGHT)
+		{
+			vga_ctrl->SQUARES[0 * 8 + 5] = (ROOK << 1) + BLACK;
+			vga_ctrl->SQUARES[0 * 8 + 7] = EMPTY_SQUARE;
+		}
+		castling_status = NO_CASTLE;
+		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
+		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = piece;
 	}
 	else
 	{

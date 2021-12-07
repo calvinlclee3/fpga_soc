@@ -20,6 +20,11 @@
 #define BLACK 0
 #define WHITE 1
 
+#define NO_CASTLE 0
+#define WHITE_CASTLE_LEFT 1
+#define WHITE_CASTLE_RIGHT 2
+#define BLACK_CASTLE_LEFT 3
+#define BLACK_CASTLE_RIGHT 4
 
 #include <system.h>
 #include <alt_types.h>

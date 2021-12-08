@@ -566,7 +566,8 @@ alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol
 	alt_u8 pieceType = (piece >> 1) & 7;	
 	
 	// printf("color: %d, pieceType: %d \n", color, pieceType);
-	printf("Castling Status: %d: \n", castling_status);
+	// printf("Castling Status: %d: \n", castling_status);
+	
 	/* Illegal Move */
 	if((vga_ctrl->SQUARES[finalRow * 8 + finalCol] & 0x10) == 0)
 	{
@@ -585,7 +586,7 @@ alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol
 		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = (QUEEN << 1) + color;
 	}
 	/* SPECIAL CASE: CASTLING */
-	else if(castling_status != NO_CASTLE)
+	else if(castling_status != NO_CASTLE && abs(initCol - finalCol) == 2)
 	{
 		if(castling_status == WHITE_CASTLE_LEFT)
 		{

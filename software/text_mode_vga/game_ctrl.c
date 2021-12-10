@@ -88,6 +88,13 @@ void initGame()
 	B_kingX = 4;
 	B_kingY = 0;
 	in_check = 0;
+
+	// Clear LEDs
+	clearLED(0);
+	clearLED(1);
+	clearLED(2);
+	clearLED(3);
+
 }
 
 void processMouseClick(alt_u8 button)
@@ -101,10 +108,7 @@ void processMouseClick(alt_u8 button)
 	// Reset Game
 	if(button == SCROLL)
 	{
-		st = END_GAME;
-		endGame(WHITE);
-		usleep (500000);
-		endGame(BLACK);
+		initGame();
 	}
 	else
 	{
@@ -913,9 +917,12 @@ alt_u8 checkMate(alt_u16 in_check_hash)
 	alt_u16 adjusted_hash = in_check_hash - 1;
 	// Enemy piece
 	alt_u8 piece = (alt_u8) (adjusted_hash >> 6);
+	printf("Piece value: %d\n", piece);
 	// Enemy square
 	alt_u8 row1 = (alt_u8) ((adjusted_hash & 0x28) >> 3);
+	printf("Enemy at row: %d\n", row1);
 	alt_u8 col1 = (alt_u8) (adjusted_hash & 0x07);
+	printf("Enemy at col: %d\n", col1);
 	// Friendly square
 	alt_u8 row2;
 	alt_u8 col2;
@@ -947,8 +954,8 @@ alt_u8 checkMate(alt_u16 in_check_hash)
 		dirCol = 0;
 	}
 
-	int r = row1 + dirRow;
-	int c = col1 + dirCol;
+	int r = row1;
+	int c = col1;
 	int ri, ci;
 
 	switch (piece) {
@@ -956,28 +963,40 @@ alt_u8 checkMate(alt_u16 in_check_hash)
 		case ROOK:
 		case QUEEN:
 			while (r != row2 && c != col2) {
-				r += dirRow;
-				c += dirCol;
+				printf("r: %d, c: %d, player_turn: %d\n", r, c, player_turn);
 
 				// Possible pawn block?
-				if (player_turn == WHITE) {
-					if (r == 4) {
-						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c, player_turn, PAWN)) {
+				if (r == row1 && c == col1) {
+					if (player_turn == WHITE) {
+						if ((c > 0 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c - 1, player_turn, PAWN)) || (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c + 1, player_turn, PAWN))) {
 							return 0;
 						}
 					} else {
-						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN)) {
+						if ((c > 0 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c - 1, player_turn, PAWN)) || (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c + 1, player_turn, PAWN))) {
 							return 0;
 						}
 					}
-				} else {
-					if (r == 5) {
-						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c, player_turn, PAWN)) {
-							return 0;
+				}
+				else {
+					if (player_turn == WHITE) {
+						if (r == 4) {
+							if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c, player_turn, PAWN)) {
+								return 0;
+							}
+						} else {
+							if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN)) {
+								return 0;
+							}
 						}
 					} else {
-						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN)) {
-							return 0;
+						if (r == 5) {
+							if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c, player_turn, PAWN)) {
+								return 0;
+							}
+						} else {
+							if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN)) {
+								return 0;
+							}
 						}
 					}
 				}
@@ -1142,10 +1161,195 @@ alt_u8 checkMate(alt_u16 in_check_hash)
 					else break;
 				}
 
+				r += dirRow;
+				c += dirCol;
 			}
 			break;
 		case PAWN:
 		case KNIGHT:
+			if (r == row1 && c == col1) {
+				if (player_turn == WHITE) {
+					if ((c > 0 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c - 1, player_turn, PAWN)) || (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c + 1, player_turn, PAWN))) {
+						return 0;
+					}
+				} else {
+					if ((c > 0 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c - 1, player_turn, PAWN)) || (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c + 1, player_turn, PAWN))) {
+						return 0;
+					}
+				}
+			}
+			else {
+				if (player_turn == WHITE) {
+					if (r == 4) {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c, player_turn, PAWN)) {
+							return 0;
+						}
+					} else {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN)) {
+							return 0;
+						}
+					}
+				} else {
+					if (r == 5) {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c, player_turn, PAWN)) {
+							return 0;
+						}
+					} else {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN)) {
+							return 0;
+						}
+					}
+				}
+			}
+
+			// Possible knight block?
+			if (r >= 2) {
+				if (c >= 1 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c - 1, player_turn, KNIGHT)) {
+					return 0;
+				}
+				if (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c + 1, player_turn, KNIGHT)) {
+					return 0;
+				}
+			}
+			if (r >= 1) {
+				if (c >= 2 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c - 2, player_turn, KNIGHT)) {
+					return 0;
+				}
+				if (c <= 5 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c + 2, player_turn, KNIGHT)) {
+					return 0;
+				}
+			}
+			if (r <= 5) {
+				if (c >= 1 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c - 1, player_turn, KNIGHT)) {
+					return 0;
+				}
+				if (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c + 1, player_turn, KNIGHT)) {
+					return 0;
+				}
+			}
+			if (r <= 6) {
+				if (c >= 2 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c - 2, player_turn, KNIGHT)) {
+					return 0;
+				}
+				if (c <= 5 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c + 2, player_turn, KNIGHT)) {
+					return 0;
+				}
+			}
+
+			// Diagonal block?
+			ri = r - 1;
+			ci = c - 1;
+			while (ri >= 0 && ci >= 0) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri--;
+					ci--;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			ri = r + 1;
+			ci = c - 1;
+			while (ri < ROWS && ci >= 0) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri++;
+					ci--;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			ri = r - 1;
+			ci = c + 1;
+			while (ri >= 0 && ci < COLUMNS) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri--;
+					ci++;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			ri = r + 1;
+			ci = c + 1;
+			while (ri < ROWS && ci < COLUMNS) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri++;
+					ci++;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			// Rank and file logic
+			ri = r - 1;
+			ci = c;
+			while (ri >= 0) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri--;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			ri = r + 1;
+			ci = c;
+			while (ri < ROWS) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ri++;
+				}
+				else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			ri = r;
+			ci = c - 1;
+			while (ci >= 0) {
+				if (CHECK_SQUARE_EMPTY(ri, ci)) {
+					ci--;
+				}
+				else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+					return 0;
+				}
+				else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+					return 0;
+				}
+				else break;
+			}
+
+			r += dirRow;
+			c += dirCol;
+			break;
 		case KING:
 		default:
 			break;

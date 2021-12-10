@@ -54,11 +54,15 @@ struct BOARD {
 };
 
 static volatile struct BOARD* vga_ctrl = VGA_TEXT_MODE_CONTROLLER_0_BASE;
+static alt_u16 in_check;
+
 
 /* function prototypes */
 void initGame();
 alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol);
 alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol);
+alt_u16 inCheck(alt_u8 initRow, alt_u8 initCol);
+alt_u8 checkMate(alt_u16 in_check_hash);
 void simulateGame();
 
 void processMouseClick(alt_u8 button);

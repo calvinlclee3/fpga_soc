@@ -207,18 +207,19 @@ int main() {
 				/* Process mouse clicks */
 				processMouseClick(buf.button);
 
-				if (buf.button & 0x04)
-					setLED(2);
-				else
-					clearLED(2);
-				if (buf.button & 0x02)
-					setLED(1);
-				else
-					clearLED(1);
-				if (buf.button & 0x01)
-					setLED(0);
-				else
-					clearLED(0);
+				// if (buf.button & 0x04)
+				// 	setLED(2);
+				// else
+				// 	clearLED(2);
+				// if (buf.button & 0x02)
+				// 	setLED(1);
+				// else
+				// 	clearLED(1);
+				// if (buf.button & 0x01)
+				// 	setLED(0);
+				// else
+				// 	clearLED(0);
+
 			}
 		} else if (GetUsbTaskState() == USB_STATE_ERROR) {
 			if (!errorflag) {

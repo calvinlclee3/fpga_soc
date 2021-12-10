@@ -8,11 +8,21 @@
 #define NOT_SELECTED -1
 #define CHECK_SQUARE_EMPTY(r,c) ((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x0F) == EMPTY_SQUARE)
 #define CHECK_SQUARE_ENEMY(r,c,p) (((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x0F) != EMPTY_SQUARE) && ((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x01) != p))
+#define CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player,piece) ((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x0F) == ((player ^ 1) + (piece << 1)))
+#define CHECK_SQUARE_FRIENDLY_IS_KING(r,c,player) ((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x0F) == (player + (KING << 1)))
+#define CHECK_SQUARE_FRIENDLY_IS_PIECE(r,c,player,piece) ((vga_ctrl->SQUARES[(r) * 8 + (c)] & 0x0F) == (player + (piece << 1)))
 #define CHECK_SQUARE_EMPTY_OR_ENEMY(r,c,p) (CHECK_SQUARE_EMPTY(r,c) || CHECK_SQUARE_ENEMY(r,c,p))
 #define HILITE(r,c) vga_ctrl->SQUARES[(r) * 8 + (c)] |= 0x10; nPlaces++;
+#define HASH(r,c,piece) (64 * piece + r * 8 + c + 1)
 
 static alt_u8 selectedX = NOT_SELECTED;
 static alt_u8 selectedY = NOT_SELECTED;
+
+static alt_u8 W_kingX;
+static alt_u8 W_kingY;
+
+static alt_u8 B_kingX;
+static alt_u8 B_kingY;
 
 static alt_u8 player_turn;
 
@@ -73,7 +83,11 @@ void initGame()
 	vga_ctrl->end_game = 0;
 	castling_status = NO_CASTLE;
 	clearHighlight();
-
+	W_kingX = 4;
+	W_kingY = 7;
+	B_kingX = 4;
+	B_kingY = 0;
+	in_check = 0;
 }
 
 void processMouseClick(alt_u8 button)
@@ -141,6 +155,34 @@ void processMouseClick(alt_u8 button)
 						{
 							// Only update player turn if legal move is made.
 							player_turn ^= 1;
+
+							if (player_turn == BLACK) {
+								in_check = inCheck(B_kingY, B_kingX);
+							} else {
+								in_check = inCheck(W_kingY, W_kingX);
+							}
+							printf("inCheck: %d\n", in_check);
+							if(in_check != 0)
+							{
+								setLED(0);
+								setLED(1);
+								setLED(2);
+								setLED(3);
+
+							}
+							else
+							{
+								clearLED(0);
+								clearLED(1);
+								clearLED(2);
+								clearLED(3);
+							}
+
+							if (checkMate(in_check) != 0) {
+								endGame(player_turn ^ 1);
+								st = END_GAME;
+								break;
+							}
 						}
 						st = FINAL_POS_DOWN;
 							
@@ -164,7 +206,7 @@ void processMouseClick(alt_u8 button)
 				if(button == LEFT_CLICK)
 				{
 					if((vga_ctrl->x_pos >= 180 && vga_ctrl->x_pos < 300) && 
-					(vga_ctrl->y_pos >= 240 && vga_ctrl->y_pos < 300))
+					(vga_ctrl->y_pos >= 240 && vga_ctrl->y_pos < 270))
 					{
 						initGame();
 					}
@@ -182,7 +224,6 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 	alt_u8 piece = vga_ctrl->SQUARES[initRow * 8 + initCol];
 	alt_u8 color = piece & 1;
 	alt_u8 pieceType = (piece >> 1) & 7;
-	
 
 	/* Check empty square */
 	if(piece == EMPTY_SQUARE)
@@ -465,7 +506,7 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 
 			r = initRow + 1;
 			c = initCol;
-			while (r < COLUMNS) {
+			while (r < ROWS) {
 				if (CHECK_SQUARE_EMPTY(r, c)) {
 					HILITE(r,c);
 					r++;
@@ -510,7 +551,8 @@ alt_u8 checkMove(alt_u8 initRow, alt_u8 initCol)
 				for (c = initCol - 1; c <= initCol + 1; c++) {
 					if (r >= 0 && r < ROWS && c >= 0 && c < COLUMNS && 
 						(r != initRow || c != initCol) &&
-						CHECK_SQUARE_EMPTY_OR_ENEMY(r, c, color)) {
+						CHECK_SQUARE_EMPTY_OR_ENEMY(r, c, color) &&
+						(inCheck(r,c) == 0)) {
 						
 						HILITE(r,c);
 					}
@@ -611,14 +653,516 @@ alt_u8 makeMove(alt_u8 initRow, alt_u8 initCol, alt_u8 finalRow, alt_u8 finalCol
 		castling_status = NO_CASTLE;
 		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
 		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = piece;
+		if(player_turn == BLACK && pieceType == KING)
+		{
+			B_kingX = finalCol;
+			B_kingY = finalRow;
+		}
+		else if (player_turn == WHITE && pieceType == KING)
+		{
+			W_kingX = finalCol;
+			W_kingY = finalRow;
+		}
 	}
 	else
 	{
 		vga_ctrl->SQUARES[initRow * 8 + initCol] = EMPTY_SQUARE;
 		vga_ctrl->SQUARES[finalRow * 8 + finalCol] = piece;
+		if(player_turn == BLACK && pieceType == KING)
+		{
+			B_kingX = finalCol;
+			B_kingY = finalRow;
+		}
+		else if (player_turn == WHITE && pieceType == KING)
+		{
+			W_kingX = finalCol;
+			W_kingY = finalRow;
+		}
 	}
 	
 	usleep(1000); // adds delay to give time for the hardware to update graphics
+	return 1;
+}
+
+// Return value is hashed for checkMate function in the following way: 64 * (piece value) + row * 8 + col + 1
+// 0 is the return value for not in check
+alt_u16 inCheck (alt_u8 initRow, alt_u8 initCol)
+{
+	int r, c;
+
+	// Knight moves logic
+	if (initRow >= 2) {
+		if (initCol >= 1 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow - 2, initCol - 1, player_turn, KNIGHT)) {
+			return HASH(initRow - 2, initCol - 1, KNIGHT);
+		}
+		if (initCol <= 6 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow - 2, initCol + 1, player_turn, KNIGHT)) {
+			return HASH(initRow - 2, initCol + 1, KNIGHT);
+		}
+	}
+	if (initRow >= 1) {
+		if (initCol >= 2 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow - 1, initCol - 2, player_turn, KNIGHT)) {
+			return HASH(initRow - 1, initCol - 2, KNIGHT);
+		}
+		if (initCol <= 5 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow - 1, initCol + 2, player_turn, KNIGHT)) {
+			return HASH(initRow - 1, initCol + 2, KNIGHT);
+		}
+	}
+	if (initRow <= 5) {
+		if (initCol >= 1 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow + 2, initCol - 1, player_turn, KNIGHT)) {
+			return HASH(initRow + 2, initCol - 1, KNIGHT);
+		}
+		if (initCol <= 6 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow + 2, initCol + 1, player_turn, KNIGHT)) {
+			return HASH(initRow + 2, initCol + 1, KNIGHT);
+		}
+	}
+	if (initRow <= 6) {
+		if (initCol >= 2 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow + 1, initCol - 2, player_turn, KNIGHT)) {
+			return HASH(initRow + 1, initCol - 2, KNIGHT);
+		}
+		if (initCol <= 5 && CHECK_SQUARE_ENEMY_IS_PIECE(initRow + 1, initCol + 2, player_turn, KNIGHT)) {
+			return HASH(initRow + 1, initCol + 2, KNIGHT);
+		}
+	}
+
+	// Diagonal move logic
+	r = initRow - 1;
+	c = initCol - 1;
+	if (r >= 0 && c >= 0) {
+		if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)){
+			return HASH(r, c, KING);
+		}
+		else if ((player_turn == WHITE) && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, PAWN)) {
+			return HASH(r, c, PAWN);
+		}
+	}
+	while (r >= 0 && c >= 0) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r--;
+			c--;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, BISHOP)) {
+			return HASH(r, c, BISHOP);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow + 1;
+	c = initCol - 1;
+	if (r < ROWS && c >= 0) {
+		if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)){
+			return HASH(r, c, KING);
+		}
+		else if ((player_turn == BLACK) && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, PAWN)) {
+			return HASH(r, c, PAWN);
+		}
+	}
+	while (r < ROWS && c >= 0) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r++;
+			c--;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, BISHOP)) {
+			return HASH(r, c, BISHOP);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow - 1;
+	c = initCol + 1;
+	if (r >= 0 && c < COLUMNS) {
+		if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)){
+			return HASH(r, c, KING);
+		}
+		else if ((player_turn == WHITE) && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, PAWN)) {
+			return HASH(r, c, PAWN);
+		}
+	}
+	while (r >= 0 && c < COLUMNS) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r--;
+			c++;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, BISHOP)) {
+			return HASH(r, c, BISHOP);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow + 1;
+	c = initCol + 1;
+	if (r < ROWS && c < COLUMNS) {
+		if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)){
+			return HASH(r, c, KING);
+		}
+		else if ((player_turn == BLACK) && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, PAWN)) {
+			return HASH(r, c, PAWN);
+		}
+	}
+	while (r < ROWS && c < COLUMNS) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r++;
+			c++;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, BISHOP)) {
+			return HASH(r, c, BISHOP);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	// Rank move logic
+	
+	r = initRow - 1;
+	c = initCol;
+	if (r >= 0 && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)) {
+		return HASH(r, c, KING);
+	}
+	while (r >= 0) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r--;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, ROOK)) {
+			return HASH(r, c, ROOK);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow + 1;
+	c = initCol;
+	if (r < ROWS && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)) {
+		return HASH(r, c, KING);
+	}
+	while (r < ROWS) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			r++;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, ROOK)) {
+			return HASH(r, c, ROOK);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow;
+	c = initCol - 1;
+	if (c >= 0 && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)) {
+		return HASH(r, c, KING);
+	}
+	while (c >= 0) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			c--;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, ROOK)) {
+			return HASH(r, c, ROOK);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	r = initRow;
+	c = initCol + 1;
+	if (c < COLUMNS && CHECK_SQUARE_ENEMY_IS_PIECE(r,c,player_turn, KING)) {
+		return HASH(r, c, KING);
+	}
+	while (c < COLUMNS) {
+		if (CHECK_SQUARE_EMPTY(r, c) || CHECK_SQUARE_FRIENDLY_IS_KING(r, c, player_turn)) {
+			c++;
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, ROOK)) {
+			return HASH(r, c, ROOK);
+		}
+		else if (CHECK_SQUARE_ENEMY_IS_PIECE(r ,c , player_turn, QUEEN)) {
+			return HASH(r, c, QUEEN);
+		}
+		else break;
+	}
+
+	// Not in Check
+	return 0;
+}
+
+/* return the following:
+	0 for nothing
+	1 for checkmate
+	this function assumes that in_check is established to be true
+*/
+alt_u8 checkMate(alt_u16 in_check_hash)
+{
+	if (in_check == 0) {
+		return 0;
+	}
+
+	alt_u16 adjusted_hash = in_check_hash - 1;
+	// Enemy piece
+	alt_u8 piece = (alt_u8) (adjusted_hash >> 6);
+	// Enemy square
+	alt_u8 row1 = (alt_u8) ((adjusted_hash & 0x28) >> 3);
+	alt_u8 col1 = (alt_u8) (adjusted_hash & 0x07);
+	// Friendly square
+	alt_u8 row2;
+	alt_u8 col2;
+
+	if (player_turn == WHITE) {
+		row2 = W_kingY;
+		col2 = W_kingX;
+	}
+	else {
+		row2 = B_kingY;
+		col2 = B_kingX;
+	}
+
+	int dirRow, dirCol;
+
+	if (row1 > row2) {
+		dirRow = -1;
+	} else if (row1 < row2) {
+		dirRow = 1;
+	} else {
+		dirRow = 0;
+	}
+
+	if (col1 > col2) {
+		dirCol = -1;
+	} else if (col1 < col2) {
+		dirCol = 1;
+	} else {
+		dirCol = 0;
+	}
+
+	int r = row1 + dirRow;
+	int c = col1 + dirCol;
+	int ri, ci;
+
+	switch (piece) {
+		case BISHOP:
+		case ROOK:
+		case QUEEN:
+			while (r != row2 && c != col2) {
+				r += dirRow;
+				c += dirCol;
+
+				// Possible pawn block?
+				if (player_turn == WHITE) {
+					if (r == 4) {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c, player_turn, PAWN)) {
+							return 0;
+						}
+					} else {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c, player_turn, PAWN)) {
+							return 0;
+						}
+					}
+				} else {
+					if (r == 5) {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN) || CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c, player_turn, PAWN)) {
+							return 0;
+						}
+					} else {
+						if (CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c, player_turn, PAWN)) {
+							return 0;
+						}
+					}
+				}
+
+				// Possible knight block?
+				if (r >= 2) {
+					if (c >= 1 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c - 1, player_turn, KNIGHT)) {
+						return 0;
+					}
+					if (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 2, c + 1, player_turn, KNIGHT)) {
+						return 0;
+					}
+				}
+				if (r >= 1) {
+					if (c >= 2 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c - 2, player_turn, KNIGHT)) {
+						return 0;
+					}
+					if (c <= 5 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r - 1, c + 2, player_turn, KNIGHT)) {
+						return 0;
+					}
+				}
+				if (r <= 5) {
+					if (c >= 1 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c - 1, player_turn, KNIGHT)) {
+						return 0;
+					}
+					if (c <= 6 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 2, c + 1, player_turn, KNIGHT)) {
+						return 0;
+					}
+				}
+				if (r <= 6) {
+					if (c >= 2 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c - 2, player_turn, KNIGHT)) {
+						return 0;
+					}
+					if (c <= 5 && CHECK_SQUARE_FRIENDLY_IS_PIECE(r + 1, c + 2, player_turn, KNIGHT)) {
+						return 0;
+					}
+				}
+
+				// Diagonal block?
+				ri = r - 1;
+				ci = c - 1;
+				while (ri >= 0 && ci >= 0) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri--;
+						ci--;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r + 1;
+				ci = c - 1;
+				while (ri < ROWS && ci >= 0) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri++;
+						ci--;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r - 1;
+				ci = c + 1;
+				while (ri >= 0 && ci < COLUMNS) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri--;
+						ci++;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r + 1;
+				ci = c + 1;
+				while (ri < ROWS && ci < COLUMNS) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri++;
+						ci++;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, BISHOP)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri,ci,player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				// Rank and file logic
+				ri = r - 1;
+				ci = c;
+				while (ri >= 0) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri--;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_FRIENDLY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r + 1;
+				ci = c;
+				while (ri < ROWS) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ri++;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r;
+				ci = c - 1;
+				while (ci >= 0) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ci--;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+				ri = r;
+				ci = c + 1;
+				while (ci < COLUMNS) {
+					if (CHECK_SQUARE_EMPTY(ri, ci)) {
+						ci++;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, ROOK)) {
+						return 0;
+					}
+					else if (CHECK_SQUARE_ENEMY_IS_PIECE(ri ,ci , player_turn, QUEEN)) {
+						return 0;
+					}
+					else break;
+				}
+
+			}
+			break;
+		case PAWN:
+		case KNIGHT:
+		case KING:
+		default:
+			break;
+	}
+
+	for (ri = row2 - 1; ri <= row2 + 1; ri++) {
+		for (ci = col2 - 1; ci <= col2 + 1; ci++) {
+			if (ri >= 0 && ri < ROWS && ci >= 0 && ci < COLUMNS && 
+				(ri != row2 || ci != col2) &&
+				CHECK_SQUARE_EMPTY_OR_ENEMY(ri, ci, player_turn) &&
+				(inCheck(ri,ci) == 0)) {
+				
+				return 0;
+			}
+		}
+	}
+
 	return 1;
 }
 

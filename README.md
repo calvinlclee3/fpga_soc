@@ -1,7 +1,8 @@
 # PvP Chess on NIOS/II SOC
 
 Our project is PvP chess running on NIOS/II SOC using MAX10 FPGA with VGA output.
-<img src="gameplay_screenshot.jpg" width="128"/>
+<br />
+<img src="gameplay_screenshot.jpg" width="800"/>
 
 ## How to run our project
 * Clone the git repository.

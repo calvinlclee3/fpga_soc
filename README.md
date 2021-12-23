@@ -2,6 +2,7 @@
 
 Our project is PvP chess running on NIOS/II SOC using MAX10 FPGA with VGA output.
 <br />
+<br />
 <img src="gameplay_screenshot.jpg" width="800"/>
 
 ## How to run our project
